@@ -97,12 +97,8 @@ func (cm *ClosestMatch) Closest(searchWord string) string {
 func (cm *ClosestMatch) splitWord(word string) map[string]struct{} {
 	wordHash := make(map[string]struct{})
 	for _, j := range cm.SubstringSizes {
-		mergedWord := word
-		for it := 1; it < j; it++ {
-			mergedWord = mergedWord + word
-		}
-		for i := 0; i < len(word); i++ {
-			wordHash[string(mergedWord[i:i+j])] = struct{}{}
+		for i := 0; i < len(word)-j; i++ {
+			wordHash[string(word[i:i+j])] = struct{}{}
 		}
 	}
 	return wordHash
