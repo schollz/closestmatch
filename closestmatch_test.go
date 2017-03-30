@@ -7,6 +7,12 @@ import (
 	"github.com/schollz/closestmatch/test"
 )
 
+func BenchmarkOpen(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Open(test.WordsToTest)
+	}
+}
+
 func BenchmarkClosest(b *testing.B) {
 	cm := Open(test.WordsToTest)
 	b.ResetTimer()
@@ -14,12 +20,6 @@ func BenchmarkClosest(b *testing.B) {
 		for _, searchWord := range test.SearchWords {
 			cm.Closest(searchWord)
 		}
-	}
-}
-
-func BenchmarkOpen(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		Open(test.WordsToTest)
 	}
 }
 
