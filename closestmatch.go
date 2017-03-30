@@ -1,27 +1,86 @@
 package closestmatch
 
 import (
+	"sort"
 	"strings"
 )
 
 type ClosestMatch struct {
-	Substrings map[string]map[string]struct{}
+	Substrings     map[string]map[string]struct{}
+	SubstringSizes []int
 }
 
-func Open(possible []string) *ClosestMatch {
+func Open(possible []string, subsetSize []int) *ClosestMatch {
 	cm := new(ClosestMatch)
 
+	cm.SubstringSizes = subsetSize
 	cm.Substrings = make(map[string]map[string]struct{})
 	for _, s := range possible {
 		s = strings.ToLower(s)
-		cm.Substrings[s] = splitWord(s)
+		cm.Substrings[s] = cm.splitWord(s)
 	}
 
 	return cm
 }
 
+func (cm *ClosestMatch) ClosestN(searchWord string, n int) []string {
+	searchWordHash := cm.splitWord(searchWord)
+	worstBestVal := 1000000
+	bestWords := make(map[string]int)
+	for word := range cm.Substrings {
+		if len(bestWords) < n {
+			newVal := cm.compareIfBetter(&searchWordHash, word, 0, len(word)+len(searchWord))
+			bestWords[word] = newVal
+			if newVal < worstBestVal {
+				worstBestVal = newVal
+			}
+		} else {
+			newVal := cm.compareIfBetter(&searchWordHash, word, worstBestVal, len(word)+len(searchWord))
+			if newVal > worstBestVal {
+				keyToDelete := ""
+				newWorstBestVal := 100000
+				for key, val := range bestWords {
+					if val == worstBestVal {
+						keyToDelete = key
+					} else if val < newWorstBestVal {
+						newWorstBestVal = val
+					}
+				}
+				delete(bestWords, keyToDelete)
+				bestWords[word] = newVal
+				if newVal < newWorstBestVal {
+					newWorstBestVal = newVal
+				}
+				worstBestVal = newWorstBestVal
+			}
+
+		}
+	}
+
+	// Return a sorted list
+	bestWordsSlice := make([]string, len(bestWords))
+	nm := map[int][]string{}
+	var a []int
+	for k, v := range bestWords {
+		nm[v] = append(nm[v], k)
+	}
+	for k := range nm {
+		a = append(a, k)
+	}
+	sort.Sort(sort.Reverse(sort.IntSlice(a)))
+	i := 0
+	for _, k := range a {
+		for _, s := range nm[k] {
+			bestWordsSlice[i] = s
+			i++
+		}
+	}
+
+	return bestWordsSlice[0:i]
+}
+
 func (cm *ClosestMatch) Closest(searchWord string) string {
-	searchWordHash := splitWord(searchWord)
+	searchWordHash := cm.splitWord(searchWord)
 	bestVal := 0
 	bestWord := ""
 	for word := range cm.Substrings {
@@ -34,12 +93,15 @@ func (cm *ClosestMatch) Closest(searchWord string) string {
 	return bestWord
 }
 
-func splitWord(word string) map[string]struct{} {
+func (cm *ClosestMatch) splitWord(word string) map[string]struct{} {
 	wordHash := make(map[string]struct{})
-	tripleWord := word + word
-	for j := 1; j <= 3; j++ {
+	for _, j := range cm.SubstringSizes {
+		mergedWord := word
+		for it := 1; it < j; it++ {
+			mergedWord = mergedWord + word
+		}
 		for i := 0; i < len(word); i++ {
-			wordHash[string(tripleWord[i:i+j])] = struct{}{}
+			wordHash[string(mergedWord[i:i+j])] = struct{}{}
 		}
 	}
 	return wordHash
