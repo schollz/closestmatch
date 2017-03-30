@@ -109,7 +109,7 @@ func (cm *ClosestMatch) splitWord(word string) map[string]struct{} {
 }
 
 func (cm *ClosestMatch) compareIfBetter(one *map[string]struct{}, substring string, minPercentage int, lenSum int) int {
-	cons := 2 * 1000 / lenSum
+	minPercentage = minPercentage * lenSum / (2 * 1000)
 	shared := 0
 	two := cm.Substrings[substring]
 	if len(*one) < len(two) {
@@ -117,8 +117,8 @@ func (cm *ClosestMatch) compareIfBetter(one *map[string]struct{}, substring stri
 		for item := range *one {
 			if _, ok := two[item]; ok {
 				shared++
-			} else if cons*(numberLeft+shared) < minPercentage {
-				return cons * shared
+			} else if numberLeft+shared < minPercentage {
+				return (2 * 1000) / lenSum * shared
 			}
 			numberLeft--
 		}
@@ -127,13 +127,13 @@ func (cm *ClosestMatch) compareIfBetter(one *map[string]struct{}, substring stri
 		for item := range two {
 			if _, ok := (*one)[item]; ok {
 				shared++
-			} else if cons*(numberLeft+shared) < minPercentage {
-				return cons * shared
+			} else if numberLeft+shared < minPercentage {
+				return (2 * 1000) / lenSum * shared
 			}
 			numberLeft--
 		}
 	}
-	return cons * shared
+	return (2 * 1000) / lenSum * shared
 }
 
 func (cm *ClosestMatch) Accuracy() float64 {
