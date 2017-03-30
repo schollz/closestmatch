@@ -1,4 +1,4 @@
-package main
+package closestmatch
 
 import (
 	"strings"
@@ -38,7 +38,7 @@ func (cm *ClosestMatch) Closest(searchWord string) string {
 func splitWord(word string) map[string]struct{} {
 	wordHash := make(map[string]struct{})
 	tripleWord := word + word
-	for j := 2; j <= 3; j++ {
+	for j := 1; j <= 3; j++ {
 		for i := 0; i < len(word); i++ {
 			wordHash[string(tripleWord[i:i+j])] = struct{}{}
 		}

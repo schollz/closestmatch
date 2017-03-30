@@ -1,4 +1,4 @@
-package main
+package levenshtein
 
 // LevenshteinDistance
 // from https://groups.google.com/forum/#!topic/golang-nuts/YyH1f_qCZVc
@@ -37,10 +37,20 @@ func LevenshteinDistance(a, b *string) int {
 	return d[la]
 }
 
-func FindBestLevenshtein(searchWord string, wordsToTest []string) string {
+type ClosestMatch struct {
+	WordsToTest []string
+}
+
+func Open(wordsToTest []string) *ClosestMatch {
+	cm := new(ClosestMatch)
+	cm.WordsToTest = wordsToTest
+	return cm
+}
+
+func (cm *ClosestMatch) Closest(searchWord string) string {
 	bestVal := 10000
 	bestWord := ""
-	for _, word := range wordsToTest {
+	for _, word := range cm.WordsToTest {
 		newVal := LevenshteinDistance(&searchWord, &word)
 		if newVal < bestVal {
 			bestVal = newVal
