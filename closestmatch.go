@@ -108,7 +108,8 @@ func (cm *ClosestMatch) compareIfBetter(one *map[string]struct{}, substring stri
 	minPercentage = minPercentage * lenSum / (2 * 1000)
 	shared := 0
 	two := cm.Substrings[substring]
-	if len(*one) < len(two) {
+	lenTwo := len(two)
+	if len(*one) < lenTwo {
 		numberLeft := len(*one)
 		for item := range *one {
 			if _, ok := two[item]; ok {
@@ -119,7 +120,7 @@ func (cm *ClosestMatch) compareIfBetter(one *map[string]struct{}, substring stri
 			numberLeft--
 		}
 	} else {
-		numberLeft := len(two)
+		numberLeft := lenTwo
 		for item := range two {
 			if _, ok := (*one)[item]; ok {
 				shared++

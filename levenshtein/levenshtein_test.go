@@ -2,6 +2,8 @@ package levenshtein
 
 import (
 	"fmt"
+	"io/ioutil"
+	"strings"
 	"testing"
 
 	"github.com/schollz/closestmatch/test"
@@ -20,6 +22,21 @@ func BenchmarkClosestOne(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		cm.Closest(searchWord)
 	}
+}
+
+func BenchmarkLargeFile(b *testing.B) {
+	bText, _ := ioutil.ReadFile("../test/books.list")
+	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
+	cm := Open(wordsToTest)
+	searchWord := "island of a thod mirrors"
+	// fmt.Println(cm.Closest(searchWord))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		cm.Closest(searchWord)
+	}
+
+	// Test against agrep using
+	// perf stat -r 50 -d agrep -iBy 'island of a thod mirrors' test/books.list
 }
 
 func ExampleMatching() {

@@ -17,6 +17,12 @@
 Getting Started
 ===============
 
+## Comparison with `agrep`
+
+```
+perf stat -r 50 -d agrep -iBy 'on one condition' test/books.list
+```
+
 ## Todo
 
 - [ ] Use more intuitive variable names + improve documentation

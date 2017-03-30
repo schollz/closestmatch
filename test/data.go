@@ -55,6 +55,7 @@ Prestuplenie i nakazanie. English by Fyodor Dostoyevsky
 Practical Grammar and Composition by Thomas Wood
 A Study in Scarlet by Arthur Conan Doyle
 Sense and Sensibility by Jane Austen
+Don Quixote by Miguel de Cervantes Saavedra
 Peter Pan by J. M. Barrie
 The Republic by Plato
 The Life and Adventures of Robinson Crusoe by Daniel Defoe
@@ -103,7 +104,6 @@ The Mysterious Affair at Styles by Agatha Christie
 Korean—English Dictionary by Leon Kuperman
 The War of the Worlds by H. G. Wells
 A Concise Dictionary of Middle English from A.D. 1150 to 1580 by A. L. Mayhew and Walter W. Skeat
-Don Quixote by Miguel de Cervantes Saavedra
 Armageddon in Retrospect by Kurt Vonnegut
 Red Riding Hood by Sarah Blakley-Cartwright
 The Kingdom of This World by Alejo Carpentier

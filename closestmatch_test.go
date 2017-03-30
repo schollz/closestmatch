@@ -2,6 +2,8 @@ package closestmatch
 
 import (
 	"fmt"
+	"io/ioutil"
+	"strings"
 	"testing"
 
 	"github.com/schollz/closestmatch/test"
@@ -10,6 +12,15 @@ import (
 func BenchmarkOpen(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		Open(test.WordsToTest, []int{3})
+	}
+}
+
+func BenchmarkSplitOne(b *testing.B) {
+	cm := Open(test.WordsToTest, []int{3})
+	searchWord := test.SearchWords[0]
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		cm.splitWord(searchWord)
 	}
 }
 
@@ -37,6 +48,18 @@ func BenchmarkClosest30(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		cm.ClosestN(searchWord, 30)
+	}
+}
+
+func BenchmarkLargeFile(b *testing.B) {
+	bText, _ := ioutil.ReadFile("test/books.list")
+	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
+	cm := Open(wordsToTest, []int{3})
+	searchWord := "island of a thod mirrors"
+	fmt.Println(cm.Closest(searchWord))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		cm.Closest(searchWord)
 	}
 }
 
