@@ -25,8 +25,7 @@ func (cm *ClosestMatch) Closest(searchWord string) string {
 	bestVal := 0
 	bestWord := ""
 	for word := range cm.Substrings {
-		v := cm.Substrings[word]
-		newVal := compareIfBetter(&searchWordHash, &v, bestVal, len(word)+len(searchWord))
+		newVal := cm.compareIfBetter(&searchWordHash, word, bestVal, len(word)+len(searchWord))
 		if newVal > bestVal {
 			bestVal = newVal
 			bestWord = word
@@ -46,13 +45,13 @@ func splitWord(word string) map[string]struct{} {
 	return wordHash
 }
 
-func compareIfBetter(one *map[string]struct{}, two *map[string]struct{}, minPercentage int, lenSum int) int {
+func (cm *ClosestMatch) compareIfBetter(one *map[string]struct{}, substring string, minPercentage int, lenSum int) int {
 	cons := 2 * 1000 / lenSum
 	oneInTwo := 0
-	if len(*one) < len(*two) {
+	if len(*one) < len(cm.Substrings[substring]) {
 		numberLeft := len(*one)
 		for item := range *one {
-			if _, ok := (*two)[item]; ok {
+			if _, ok := cm.Substrings[substring][item]; ok {
 				oneInTwo++
 			} else if cons*(numberLeft+oneInTwo) < minPercentage {
 				return cons * oneInTwo
@@ -60,8 +59,8 @@ func compareIfBetter(one *map[string]struct{}, two *map[string]struct{}, minPerc
 			numberLeft--
 		}
 	} else {
-		numberLeft := len(*two)
-		for item := range *two {
+		numberLeft := len(cm.Substrings[substring])
+		for item := range cm.Substrings[substring] {
 			if _, ok := (*one)[item]; ok {
 				oneInTwo++
 			} else if cons*(numberLeft+oneInTwo) < minPercentage {
