@@ -20,6 +20,8 @@ Getting Started
 ## Todo
 
 - [ ] Use more intuitive variable names + improve documentation
-- [ ] ClosestMatches(n int)
+- [ ] ClosestN(n int) returns closest n matches
+- [ ] Function to compare accuracy (for tests?)
+- [ ] Open should have []int{1,2,3} for the specified substructure lengths, compare different lengths
 - [ ] Save/Load for precomputation
 - [ ] Compare to agrep (write a utility)

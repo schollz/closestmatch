@@ -47,27 +47,28 @@ func splitWord(word string) map[string]struct{} {
 
 func (cm *ClosestMatch) compareIfBetter(one *map[string]struct{}, substring string, minPercentage int, lenSum int) int {
 	cons := 2 * 1000 / lenSum
-	oneInTwo := 0
-	if len(*one) < len(cm.Substrings[substring]) {
+	shared := 0
+	two := cm.Substrings[substring]
+	if len(*one) < len(two) {
 		numberLeft := len(*one)
 		for item := range *one {
-			if _, ok := cm.Substrings[substring][item]; ok {
-				oneInTwo++
-			} else if cons*(numberLeft+oneInTwo) < minPercentage {
-				return cons * oneInTwo
+			if _, ok := two[item]; ok {
+				shared++
+			} else if cons*(numberLeft+shared) < minPercentage {
+				return cons * shared
 			}
 			numberLeft--
 		}
 	} else {
-		numberLeft := len(cm.Substrings[substring])
-		for item := range cm.Substrings[substring] {
+		numberLeft := len(two)
+		for item := range two {
 			if _, ok := (*one)[item]; ok {
-				oneInTwo++
-			} else if cons*(numberLeft+oneInTwo) < minPercentage {
-				return cons * oneInTwo
+				shared++
+			} else if cons*(numberLeft+shared) < minPercentage {
+				return cons * shared
 			}
 			numberLeft--
 		}
 	}
-	return cons * oneInTwo
+	return cons * shared
 }
