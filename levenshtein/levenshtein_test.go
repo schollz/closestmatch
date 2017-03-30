@@ -13,13 +13,12 @@ func BenchmarkOpen(b *testing.B) {
 	}
 }
 
-func BenchmarkClosest(b *testing.B) {
+func BenchmarkClosestOne(b *testing.B) {
 	cm := Open(test.WordsToTest)
+	searchWord := test.SearchWords[0]
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		for _, searchWord := range test.SearchWords {
-			cm.Closest(searchWord)
-		}
+		cm.Closest(searchWord)
 	}
 }
 

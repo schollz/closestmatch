@@ -9,47 +9,34 @@ import (
 
 func BenchmarkOpen(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		Open(test.WordsToTest, []int{1, 2, 3})
+		Open(test.WordsToTest, []int{3})
 	}
 }
 
-func BenchmarkClosest(b *testing.B) {
-	cm := Open(test.WordsToTest, []int{1, 2, 3})
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		for _, searchWord := range test.SearchWords {
-			cm.Closest(searchWord)
-		}
-	}
-}
-
-func BenchmarkClosestOneSize(b *testing.B) {
+func BenchmarkClosestOne(b *testing.B) {
 	cm := Open(test.WordsToTest, []int{3})
+	searchWord := test.SearchWords[0]
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		for _, searchWord := range test.SearchWords {
-			cm.Closest(searchWord)
-		}
+		cm.Closest(searchWord)
 	}
 }
 
 func BenchmarkClosest3(b *testing.B) {
-	cm := Open(test.WordsToTest, []int{1, 2, 3})
+	cm := Open(test.WordsToTest, []int{3})
+	searchWord := test.SearchWords[0]
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		for _, searchWord := range test.SearchWords {
-			cm.ClosestN(searchWord, 3)
-		}
+		cm.ClosestN(searchWord, 3)
 	}
 }
 
 func BenchmarkClosest30(b *testing.B) {
-	cm := Open(test.WordsToTest, []int{1, 2, 3})
+	cm := Open(test.WordsToTest, []int{3})
+	searchWord := test.SearchWords[0]
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		for _, searchWord := range test.SearchWords {
-			cm.ClosestN(searchWord, 30)
-		}
+		cm.ClosestN(searchWord, 30)
 	}
 }
 
@@ -75,12 +62,6 @@ func ExampleMatchingN() {
 
 func TestAccuray(t *testing.T) {
 	cm := Open(test.WordsToTest, []int{3})
-	fmt.Println(cm.Accuracy())
-	cm = Open(test.WordsToTest, []int{2, 3})
-	fmt.Println(cm.Accuracy())
-	cm = Open(test.WordsToTest, []int{4})
-	fmt.Println(cm.Accuracy())
-	cm = Open(test.WordsToTest, []int{1})
 	fmt.Println(cm.Accuracy())
 	// Output:
 	// [the war of the worlds by h. g. wells the time machine by h. g. wells the iliad by homer]

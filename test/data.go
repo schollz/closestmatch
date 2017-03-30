@@ -103,7 +103,11 @@ The Mysterious Affair at Styles by Agatha Christie
 Korean—English Dictionary by Leon Kuperman
 The War of the Worlds by H. G. Wells
 A Concise Dictionary of Middle English from A.D. 1150 to 1580 by A. L. Mayhew and Walter W. Skeat
-Don Quixote by Miguel de Cervantes Saavedra`
+Don Quixote by Miguel de Cervantes Saavedra
+Armageddon in Retrospect by Kurt Vonnegut
+Red Riding Hood by Sarah Blakley-Cartwright
+The Kingdom of This World by Alejo Carpentier
+Hitty, Her First Hundred Years by Rachel Field`
 
 var WordsToTest []string
 var SearchWords = []string{"cervantes don quixote", "mysterious afur at styles by christie", "charles dickens", "william shakespeare", "War by HG Wells"}
