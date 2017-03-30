@@ -19,6 +19,7 @@ Getting Started
 
 ## Todo
 
+- [ ] Use more intuitive variable names + improve documentation
 - [ ] ClosestMatches(n int)
 - [ ] Save/Load for precomputation
 - [ ] Compare to agrep (write a utility)
