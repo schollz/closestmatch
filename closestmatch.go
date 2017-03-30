@@ -169,21 +169,6 @@ func (cm *ClosestMatch) Accuracy() float64 {
 			numTrials += 1.0
 		}
 
-		// remove two random words
-		for trial := 0; trial < 4; trial++ {
-			words := strings.Split(originalTestString, " ")
-			deleteWordI := rand.Intn(len(words))
-			words = append(words[:deleteWordI], words[deleteWordI+1:]...)
-			deleteWordI = rand.Intn(len(words))
-			words = append(words[:deleteWordI], words[deleteWordI+1:]...)
-			testString = strings.Join(words, " ")
-			fmt.Println(testString)
-			if cm.Closest(testString) == originalTestString {
-				percentCorrect += 1.0
-			}
-			numTrials += 1.0
-		}
-
 		// remove a random word and reverse
 		for trial := 0; trial < 4; trial++ {
 			a := strings.Split(originalTestString, " ")
@@ -210,6 +195,28 @@ func (cm *ClosestMatch) Accuracy() float64 {
 				a[i], a[j] = a[j], a[i]
 			}
 			testString = strings.Join(a, " ")
+			fmt.Println(testString)
+			if cm.Closest(testString) == originalTestString {
+				percentCorrect += 1.0
+			}
+			numTrials += 1.0
+		}
+
+		// remove a random word and shuffle and replace random letter
+		for trial := 0; trial < 4; trial++ {
+			a := strings.Split(originalTestString, " ")
+			deleteWordI := rand.Intn(len(a))
+			a = append(a[:deleteWordI], a[deleteWordI+1:]...)
+			for i := range a {
+				j := rand.Intn(i + 1)
+				a[i], a[j] = a[j], a[i]
+			}
+			testString = strings.Join(a, " ")
+			letters := "abcdefghijklmnopqrstuvwxyz"
+			ii := rand.Intn(len(testString) - 1)
+			testString = testString[:ii] + string(letters[rand.Intn(len(letters))]) + testString[ii+1:]
+			ii = rand.Intn(len(testString) - 1)
+			testString = testString[:ii] + string(letters[rand.Intn(len(letters))]) + testString[ii+1:]
 			fmt.Println(testString)
 			if cm.Closest(testString) == originalTestString {
 				percentCorrect += 1.0

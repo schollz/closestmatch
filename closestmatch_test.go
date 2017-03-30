@@ -74,7 +74,7 @@ func ExampleMatchingN() {
 }
 
 func TestAccuray(t *testing.T) {
-	cm := Open(test.WordsToTest, []int{1, 2, 3})
+	cm := Open(test.WordsToTest, []int{5})
 	fmt.Println(cm.Accuracy())
 	// Output:
 	// [the war of the worlds by h. g. wells the time machine by h. g. wells the iliad by homer]

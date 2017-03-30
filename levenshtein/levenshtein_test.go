@@ -35,3 +35,10 @@ func ExampleMatching() {
 	// 'william shakespeare' matched 'the iliad by homer'
 	// 'war by hg wells' matched 'beowulf'
 }
+
+func TestAccuray(t *testing.T) {
+	cm := Open(test.WordsToTest)
+	fmt.Println(cm.Accuracy())
+	// Output:
+	// [the war of the worlds by h. g. wells the time machine by h. g. wells the iliad by homer]
+}

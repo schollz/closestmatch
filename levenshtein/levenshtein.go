@@ -1,5 +1,13 @@
 package levenshtein
 
+import (
+	"fmt"
+	"math/rand"
+	"strings"
+
+	"github.com/schollz/closestmatch/test"
+)
+
 // LevenshteinDistance
 // from https://groups.google.com/forum/#!topic/golang-nuts/YyH1f_qCZVc
 // (no min, compute lengths once, pointers, 2 rows array)
@@ -58,4 +66,89 @@ func (cm *ClosestMatch) Closest(searchWord string) string {
 		}
 	}
 	return bestWord
+}
+
+func (cm *ClosestMatch) Accuracy() float64 {
+	percentCorrect := 0.0
+	numTrials := 0.0
+
+	for wordTrials := 0; wordTrials < 10; wordTrials++ {
+
+		var testString, originalTestString string
+		testStringNum := rand.Intn(len(test.WordsToTest))
+		i := 0
+		for _, s := range test.WordsToTest {
+			i++
+			if i != testStringNum {
+				continue
+			}
+			originalTestString = s
+			break
+		}
+		fmt.Println(originalTestString)
+
+		// remove a random word
+		for trial := 0; trial < 4; trial++ {
+			words := strings.Split(originalTestString, " ")
+			deleteWordI := rand.Intn(len(words))
+			words = append(words[:deleteWordI], words[deleteWordI+1:]...)
+			testString = strings.Join(words, " ")
+			fmt.Println(testString)
+			if cm.Closest(testString) == originalTestString {
+				percentCorrect += 1.0
+			}
+			numTrials += 1.0
+		}
+
+		// remove two random words
+		for trial := 0; trial < 4; trial++ {
+			words := strings.Split(originalTestString, " ")
+			deleteWordI := rand.Intn(len(words))
+			words = append(words[:deleteWordI], words[deleteWordI+1:]...)
+			deleteWordI = rand.Intn(len(words))
+			words = append(words[:deleteWordI], words[deleteWordI+1:]...)
+			testString = strings.Join(words, " ")
+			fmt.Println(testString)
+			if cm.Closest(testString) == originalTestString {
+				percentCorrect += 1.0
+			}
+			numTrials += 1.0
+		}
+
+		// remove a random word and reverse
+		for trial := 0; trial < 4; trial++ {
+			a := strings.Split(originalTestString, " ")
+			deleteWordI := rand.Intn(len(a))
+			a = append(a[:deleteWordI], a[deleteWordI+1:]...)
+			for left, right := 0, len(a)-1; left < right; left, right = left+1, right-1 {
+				a[left], a[right] = a[right], a[left]
+			}
+			testString = strings.Join(a, " ")
+			fmt.Println(testString)
+			if cm.Closest(testString) == originalTestString {
+				percentCorrect += 1.0
+			}
+			numTrials += 1.0
+		}
+
+		// remove a random word and shuffle
+		for trial := 0; trial < 4; trial++ {
+			a := strings.Split(originalTestString, " ")
+			deleteWordI := rand.Intn(len(a))
+			a = append(a[:deleteWordI], a[deleteWordI+1:]...)
+			for i := range a {
+				j := rand.Intn(i + 1)
+				a[i], a[j] = a[j], a[i]
+			}
+			testString = strings.Join(a, " ")
+			fmt.Println(testString)
+			if cm.Closest(testString) == originalTestString {
+				percentCorrect += 1.0
+			}
+			numTrials += 1.0
+		}
+
+	}
+
+	return 100.0 * percentCorrect / numTrials
 }
