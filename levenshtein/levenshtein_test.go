@@ -7,6 +7,12 @@ import (
 	"github.com/schollz/closestmatch/test"
 )
 
+func BenchmarkOpen(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Open(test.WordsToTest)
+	}
+}
+
 func BenchmarkClosest(b *testing.B) {
 	cm := Open(test.WordsToTest)
 	b.ResetTimer()
@@ -17,10 +23,15 @@ func BenchmarkClosest(b *testing.B) {
 	}
 }
 
-func TestGeneralLevenshtein(t *testing.T) {
+func ExampleMatching() {
 	cm := Open(test.WordsToTest)
-	fmt.Println("\nLevenshtein:\n")
 	for _, searchWord := range test.SearchWords {
-		fmt.Printf("'%s'\tmatched\t'%s'\n", searchWord, cm.Closest(searchWord))
+		fmt.Printf("'%s' matched '%s'\n", searchWord, cm.Closest(searchWord))
 	}
+	// Output:
+	// 'cervantes don quixote' matched 'emma by jane austen'
+	// 'mysterious afur at styles by christie' matched 'the mysterious affair at styles by agatha christie'
+	// 'charles dickens' matched 'beowulf'
+	// 'william shakespeare' matched 'the iliad by homer'
+	// 'war by hg wells' matched 'beowulf'
 }

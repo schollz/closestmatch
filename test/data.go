@@ -106,9 +106,11 @@ A Concise Dictionary of Middle English from A.D. 1150 to 1580 by A. L. Mayhew an
 Don Quixote by Miguel de Cervantes Saavedra`
 
 var WordsToTest []string
+var SearchWords = []string{"cervantes don quixote", "mysterious afur at styles by christie", "charles dickens", "william shakespeare", "War by HG Wells"}
 
 func init() {
 	WordsToTest = strings.Split(strings.ToLower(books), "\n")
+	for i := range SearchWords {
+		SearchWords[i] = strings.ToLower(SearchWords[i])
+	}
 }
-
-var SearchWords = []string{"cervantes don quixote", "mysterious affair at styles by christie", "charles dickens", "william shakespeare", "War by HG Wells"}
