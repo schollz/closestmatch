@@ -1,5 +1,11 @@
 package main
 
+import (
+	"strings"
+
+	"github.com/schollz/jsonstore"
+)
+
 func compareHash(one map[string]struct{}, two map[string]struct{}) int {
 	oneInTwo := 0
 	if len(one) < len(two) {
@@ -97,6 +103,40 @@ func findBestWordWithWordHashIfBetter(searchWord string, wordsToTest []string, w
 	for _, word := range wordsToTest {
 		foo := wordHashes[word]
 		newVal := compareHashIfBetter(&searchWordHash, &foo, bestVal, len(word)+len(searchWord))
+		if newVal > bestVal {
+			bestVal = newVal
+			bestWord = word
+		}
+	}
+	return bestWord
+}
+
+type ClosestMatch struct {
+	ks jsonstore.JSONStore
+}
+
+func Open(possible []string) (*ClosestMatch, error) {
+	cm := new(ClosestMatch)
+
+	for _, s := range possible {
+		s = strings.ToLower(s)
+		err := cm.ks.Set(s, hashWord(s))
+		if err != nil {
+			return cm, err
+		}
+	}
+
+	return cm, nil
+}
+
+func (cm *ClosestMatch) Closest(searchWord string) string {
+	searchWordHash := hashWord(searchWord)
+	bestVal := 0
+	bestWord := ""
+	for _, word := range cm.ks.Keys() {
+		var v map[string]struct{}
+		cm.ks.Get(word, &v)
+		newVal := compareHashIfBetter(&searchWordHash, &v, bestVal, len(word)+len(searchWord))
 		if newVal > bestVal {
 			bestVal = newVal
 			bestWord = word
