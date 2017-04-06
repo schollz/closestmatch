@@ -11,14 +11,6 @@
 
 <p align="center">Get the closest match using substrings</a></p>
 
-*closestmatch* tries to use a list of keywords to generate the closest match
-
-
-Getting Started
-===============
-
-## What is this?
-
 *closestmatch* is a simple library for finding the closest match in a set of strings. This is useful if you want the user to input a string and then find a key in a database that is closest to the user input.
 
 ## How does this work?
@@ -27,7 +19,8 @@ Getting Started
 
 Since it uses a map for the lookup table it is fast and requires very little memory and scales well for large datasets.
 
-## How do I use it?
+Getting Started
+===============
 
 ####  Create a *closestmatch* object from a list words
 
