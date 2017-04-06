@@ -26,8 +26,8 @@ perf stat -r 50 -d agrep -iBy 'on one condition' test/books.list
 ## Todo
 
 - [ ] Use more intuitive variable names + improve documentation
-- [ ] ClosestN(n int) returns closest n matches
-- [ ] Function to compare accuracy (for tests?)
-- [ ] Open should have []int{1,2,3} for the specified substructure lengths, compare different lengths
+- [x] ClosestN(n int) returns closest n matches
+- [x] Function to compare accuracy (for tests?)
+- [x] Open should have []int{1,2,3} for the specified substructure lengths, compare different lengths
 - [ ] Save/Load for precomputation
 - [ ] Compare to agrep (write a utility)
