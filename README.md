@@ -9,7 +9,7 @@
 <a href="https://godoc.org/github.com/schollz/closestmatch"><img src="https://img.shields.io/badge/api-reference-blue.svg?style=flat-square" alt="GoDoc"></a>
 </p>
 
-<p align="center">Get the closest match using substrings</a></p>
+<p align="center">Fuzzy match a set of strings</a></p>
 
 *closestmatch* is a simple library for finding the closest match in a set of strings. This is useful if you want the user to input a string and then find a key in a database that is closest to the user input.
 
@@ -32,7 +32,7 @@ wordsToTest := []string{"King Gizzard", "The Lizard Wizard", "Lizzard Wizzard"}
 // Choose a set of bag sizes, more is more accurate but slower
 bagSizes := []int{2}
 
-// Create a closestmatch
+// Create a closestmatch object
 cm := closestmatch.New(wordsToTest, bagSizes)
 ```
 
