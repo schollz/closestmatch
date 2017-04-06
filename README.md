@@ -25,9 +25,10 @@ perf stat -r 50 -d agrep -iBy 'on one condition' test/books.list
 
 ## Todo
 
-- [ ] Use more intuitive variable names + improve documentation
 - [x] ClosestN(n int) returns closest n matches
 - [x] Function to compare accuracy (for tests?)
 - [x] Open should have []int{1,2,3} for the specified substructure lengths, compare different lengths
-- [ ] Save/Load for precomputation
+- [ ] Save/Load for precomputation (change Open -> New)
+- [ ] Use more intuitive variable names + improve documentation
 - [ ] Compare to agrep (write a utility)
+- [ ] How does this relate to bag of words?
