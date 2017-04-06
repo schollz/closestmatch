@@ -9,14 +9,14 @@ import (
 	"github.com/schollz/closestmatch/test"
 )
 
-func BenchmarkOpen(b *testing.B) {
+func BenchmarkNew(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		Open(test.WordsToTest)
+		New(test.WordsToTest)
 	}
 }
 
 func BenchmarkClosestOne(b *testing.B) {
-	cm := Open(test.WordsToTest)
+	cm := New(test.WordsToTest)
 	searchWord := test.SearchWords[0]
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -27,7 +27,7 @@ func BenchmarkClosestOne(b *testing.B) {
 func BenchmarkLargeFile(b *testing.B) {
 	bText, _ := ioutil.ReadFile("../test/books.list")
 	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
-	cm := Open(wordsToTest)
+	cm := New(wordsToTest)
 	searchWord := "island of a thod mirrors"
 	// fmt.Println(cm.Closest(searchWord))
 	b.ResetTimer()
@@ -40,7 +40,7 @@ func BenchmarkLargeFile(b *testing.B) {
 }
 
 func ExampleMatching() {
-	cm := Open(test.WordsToTest)
+	cm := New(test.WordsToTest)
 	for _, searchWord := range test.SearchWords {
 		fmt.Printf("'%s' matched '%s'\n", searchWord, cm.Closest(searchWord))
 	}
@@ -53,8 +53,9 @@ func ExampleMatching() {
 }
 
 func TestAccuray(t *testing.T) {
-	cm := Open(test.WordsToTest)
-	fmt.Println(cm.Accuracy())
-	// Output:
-	// [the war of the worlds by h. g. wells the time machine by h. g. wells the iliad by homer]
+	cm := New(test.WordsToTest)
+	accuracy := cm.Accuracy()
+	if accuracy > 60 {
+		t.Errorf("Accuracy should be higher than it usually is! %2.1f", accuracy)
+	}
 }

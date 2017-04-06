@@ -48,7 +48,7 @@ type ClosestMatch struct {
 	WordsToTest []string
 }
 
-func Open(wordsToTest []string) *ClosestMatch {
+func New(wordsToTest []string) *ClosestMatch {
 	cm := new(ClosestMatch)
 	cm.WordsToTest = wordsToTest
 	return cm
@@ -89,10 +89,12 @@ func (cm *ClosestMatch) Accuracy() float64 {
 		// remove a random word
 		for trial := 0; trial < 4; trial++ {
 			words := strings.Split(originalTestString, " ")
+			if len(words) < 3 {
+				continue
+			}
 			deleteWordI := rand.Intn(len(words))
 			words = append(words[:deleteWordI], words[deleteWordI+1:]...)
 			testString = strings.Join(words, " ")
-
 			if cm.Closest(testString) == originalTestString {
 				percentCorrect += 1.0
 			}
@@ -101,15 +103,17 @@ func (cm *ClosestMatch) Accuracy() float64 {
 
 		// remove a random word and reverse
 		for trial := 0; trial < 4; trial++ {
-			a := strings.Split(originalTestString, " ")
-			if len(a) > 1 {
-				deleteWordI := rand.Intn(len(a))
-				a = append(a[:deleteWordI], a[deleteWordI+1:]...)
-				for left, right := 0, len(a)-1; left < right; left, right = left+1, right-1 {
-					a[left], a[right] = a[right], a[left]
+			words := strings.Split(originalTestString, " ")
+			if len(words) > 1 {
+				deleteWordI := rand.Intn(len(words))
+				words = append(words[:deleteWordI], words[deleteWordI+1:]...)
+				for left, right := 0, len(words)-1; left < right; left, right = left+1, right-1 {
+					words[left], words[right] = words[right], words[left]
 				}
+			} else {
+				continue
 			}
-			testString = strings.Join(a, " ")
+			testString = strings.Join(words, " ")
 			if cm.Closest(testString) == originalTestString {
 				percentCorrect += 1.0
 			}
@@ -118,17 +122,16 @@ func (cm *ClosestMatch) Accuracy() float64 {
 
 		// remove a random word and shuffle and replace random letter
 		for trial := 0; trial < 4; trial++ {
-
-			a := strings.Split(originalTestString, " ")
-			if len(a) > 1 {
-				deleteWordI := rand.Intn(len(a))
-				a = append(a[:deleteWordI], a[deleteWordI+1:]...)
-				for i := range a {
+			words := strings.Split(originalTestString, " ")
+			if len(words) > 1 {
+				deleteWordI := rand.Intn(len(words))
+				words = append(words[:deleteWordI], words[deleteWordI+1:]...)
+				for i := range words {
 					j := rand.Intn(i + 1)
-					a[i], a[j] = a[j], a[i]
+					words[i], words[j] = words[j], words[i]
 				}
 			}
-			testString = strings.Join(a, " ")
+			testString = strings.Join(words, " ")
 			letters := "abcdefghijklmnopqrstuvwxyz"
 			if len(testString) == 0 {
 				continue
@@ -137,12 +140,16 @@ func (cm *ClosestMatch) Accuracy() float64 {
 			testString = testString[:ii] + string(letters[rand.Intn(len(letters))]) + testString[ii+1:]
 			ii = rand.Intn(len(testString))
 			testString = testString[:ii] + string(letters[rand.Intn(len(letters))]) + testString[ii+1:]
-
 			if cm.Closest(testString) == originalTestString {
 				percentCorrect += 1.0
 			}
 			numTrials += 1.0
 		}
+
+		if cm.Closest(testString) == originalTestString {
+			percentCorrect += 1.0
+		}
+		numTrials += 1.0
 
 	}
 

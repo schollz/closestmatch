@@ -1,29 +1,70 @@
 package closestmatch
 
 import (
+	"compress/gzip"
+	"encoding/json"
 	"math/rand"
+	"os"
 	"sort"
 	"strings"
 )
 
+// Closest match is the structure that contains the
+// substring sizes and carrys a map of the substrings for
+// easy lookup
 type ClosestMatch struct {
 	Substrings     map[string]map[string]struct{}
 	SubstringSizes []int
 }
 
-func Open(possible []string, subsetSize []int) *ClosestMatch {
+// New returns a new structure for performing closest matches
+func New(possible []string, subsetSize []int) *ClosestMatch {
 	cm := new(ClosestMatch)
 
 	cm.SubstringSizes = subsetSize
 	cm.Substrings = make(map[string]map[string]struct{})
 	for _, s := range possible {
-		s = strings.ToLower(s)
-		cm.Substrings[s] = cm.splitWord(s)
+		cm.Substrings[s] = cm.splitWord(strings.ToLower(s))
 	}
 
 	return cm
 }
 
+// Load can load a previously saved ClosetMatch object from disk
+func Load(filename string) (*ClosestMatch, error) {
+	cm := new(ClosestMatch)
+
+	f, err := os.Open(filename)
+	defer f.Close()
+	if err != nil {
+		return cm, err
+	}
+
+	w, err := gzip.NewReader(f)
+	if err != nil {
+		return cm, err
+	}
+
+	err = json.NewDecoder(w).Decode(&cm)
+	return cm, err
+}
+
+// Save writes the current ClosestSave object as a gzipped JSON file
+func (cm *ClosestMatch) Save(filename string) error {
+	f, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	w := gzip.NewWriter(f)
+	defer w.Close()
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", " ")
+	return enc.Encode(cm)
+}
+
+// ClosestN searches for the `searchWord` and returns the `n` closest matches
+// as a string slice
 func (cm *ClosestMatch) ClosestN(searchWord string, n int) []string {
 	searchWordHash := cm.splitWord(searchWord)
 	worstBestVal := 1000000
@@ -80,6 +121,7 @@ func (cm *ClosestMatch) ClosestN(searchWord string, n int) []string {
 	return bestWordsSlice[0:i]
 }
 
+// Closest searches for the `searchWord` and returns the closest match
 func (cm *ClosestMatch) Closest(searchWord string) string {
 	searchWordHash := cm.splitWord(searchWord)
 	bestVal := 0
@@ -133,6 +175,9 @@ func (cm *ClosestMatch) compareIfBetter(one *map[string]struct{}, substring stri
 	return (2 * 1000) / lenSum * shared
 }
 
+// Accuracy runs some basic tests against the wordlist to
+// see how accurate this bag-of-characters method is against
+// the target dataset
 func (cm *ClosestMatch) Accuracy() float64 {
 	rand.Seed(1)
 	percentCorrect := 0.0
@@ -155,6 +200,9 @@ func (cm *ClosestMatch) Accuracy() float64 {
 		// remove a random word
 		for trial := 0; trial < 4; trial++ {
 			words := strings.Split(originalTestString, " ")
+			if len(words) < 3 {
+				continue
+			}
 			deleteWordI := rand.Intn(len(words))
 			words = append(words[:deleteWordI], words[deleteWordI+1:]...)
 			testString = strings.Join(words, " ")
@@ -166,15 +214,17 @@ func (cm *ClosestMatch) Accuracy() float64 {
 
 		// remove a random word and reverse
 		for trial := 0; trial < 4; trial++ {
-			a := strings.Split(originalTestString, " ")
-			if len(a) > 1 {
-				deleteWordI := rand.Intn(len(a))
-				a = append(a[:deleteWordI], a[deleteWordI+1:]...)
-				for left, right := 0, len(a)-1; left < right; left, right = left+1, right-1 {
-					a[left], a[right] = a[right], a[left]
+			words := strings.Split(originalTestString, " ")
+			if len(words) > 1 {
+				deleteWordI := rand.Intn(len(words))
+				words = append(words[:deleteWordI], words[deleteWordI+1:]...)
+				for left, right := 0, len(words)-1; left < right; left, right = left+1, right-1 {
+					words[left], words[right] = words[right], words[left]
 				}
+			} else {
+				continue
 			}
-			testString = strings.Join(a, " ")
+			testString = strings.Join(words, " ")
 			if cm.Closest(testString) == originalTestString {
 				percentCorrect += 1.0
 			}
@@ -183,16 +233,16 @@ func (cm *ClosestMatch) Accuracy() float64 {
 
 		// remove a random word and shuffle and replace random letter
 		for trial := 0; trial < 4; trial++ {
-			a := strings.Split(originalTestString, " ")
-			if len(a) > 1 {
-				deleteWordI := rand.Intn(len(a))
-				a = append(a[:deleteWordI], a[deleteWordI+1:]...)
-				for i := range a {
+			words := strings.Split(originalTestString, " ")
+			if len(words) > 1 {
+				deleteWordI := rand.Intn(len(words))
+				words = append(words[:deleteWordI], words[deleteWordI+1:]...)
+				for i := range words {
 					j := rand.Intn(i + 1)
-					a[i], a[j] = a[j], a[i]
+					words[i], words[j] = words[j], words[i]
 				}
 			}
-			testString = strings.Join(a, " ")
+			testString = strings.Join(words, " ")
 			letters := "abcdefghijklmnopqrstuvwxyz"
 			if len(testString) == 0 {
 				continue
@@ -206,6 +256,11 @@ func (cm *ClosestMatch) Accuracy() float64 {
 			}
 			numTrials += 1.0
 		}
+
+		if cm.Closest(testString) == originalTestString {
+			percentCorrect += 1.0
+		}
+		numTrials += 1.0
 
 	}
 
