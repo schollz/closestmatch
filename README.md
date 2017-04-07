@@ -11,7 +11,7 @@
 
 <p align="center">Golang library for fuzzing matching within a set of strings :poodle:</a></p>
 
-*closestmatch* is a simple library for finding the closest match in a set of strings. This is useful if you want the user to input a string and then find a key in a database that is closest to the user input.
+*closestmatch* is a simple and *fast* library for finding the closest match in a set of strings. This is useful if you want the user to input a string and then find a key in a database that is closest to the user input. Works better than Levenshtein in many cases.
 
 ## How does this work?
 
