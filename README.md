@@ -5,14 +5,7 @@
 <a href="http://gocover.io/github.com/schollz/closestmatch"><img src="https://img.shields.io/badge/coverage-98%25-brightgreen.svg?style=flat-square" alt="Code Coverage"></a>
 <a href="https://godoc.org/github.com/schollz/closestmatch"><img src="https://img.shields.io/badge/api-reference-blue.svg?style=flat-square" alt="GoDoc"></a>
 
-
-*closestmatch* is a simple and *fast* library for finding the closest match in a set of strings. This is useful if you want the user to input a string and then find a key in a database that is closest to the user input. Works better than Levenshtein in many cases.
-
-## How does this work?
-
-*closestmatch* uses a [bag-of-characters approach](https://en.wikipedia.org/wiki/Bag-of-words_model) to represent each possible key and then matches with the key that has the highest overlap between the sets.
-
-Since it uses a map for the lookup table it is fast and requires very little memory and scales well for large datasets.
+*closestmatch* is a simple and fast Go library for fuzzy matching a input string to a list of target strings. *closestmatch* is useful for handling using user input where the input (which could be mispelled or out of order) needs to match a key in a database. *closestmatch* uses a [bag-of-words approach](https://en.wikipedia.org/wiki/Bag-of-words_model) to precompute character n-grams to represent each possible target string. The closeset matches have highest overlap between the sets of n-grams. The precomputation scales well and is much faster and more accurate than Levenshtein.
 
 Getting Started
 ===============
@@ -54,7 +47,7 @@ fmt.Println(cm.ClosestN("kind gizard",3))
 ```golang
 // Calculate accuracy
 fmt.Println(cm.Accuracy())
-// ~ 53 % (still way better than Levenshtein which hits 0%)
+// ~ 53 % (still way better than Levenshtein which hits 0% with this particular set)
 
 // Improve accuracy by adding more bags
 bagSizes = []int{2, 3, 4}
