@@ -1,8 +1,9 @@
 
 <p align="center">
-<img
+<!--<img
     src="logo.png"
-    width="260" height="80" border="0" alt="closestmatch">
+    width="260" height="80" border="0" alt="closestmatch">-->
+<h1>closestmatch</h1>
 <br>
 <a href="https://travis-ci.org/schollz/closestmatch"><img src="https://img.shields.io/travis/schollz/closestmatch.svg?style=flat-square" alt="Build Status"></a>
 <a href="http://gocover.io/github.com/schollz/closestmatch"><img src="https://img.shields.io/badge/coverage-98%25-brightgreen.svg?style=flat-square" alt="Code Coverage"></a>
