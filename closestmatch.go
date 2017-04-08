@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// Closest match is the structure that contains the
+// ClosestMatch is the structure that contains the
 // substring sizes and carrys a map of the substrings for
 // easy lookup
 type ClosestMatch struct {
@@ -30,7 +30,7 @@ func New(possible []string, subsetSize []int) *ClosestMatch {
 	return cm
 }
 
-// Load can load a previously saved ClosetMatch object from disk
+// Load can load a previously saved ClosestMatch object from disk
 func Load(filename string) (*ClosestMatch, error) {
 	cm := new(ClosestMatch)
 
@@ -257,6 +257,7 @@ func (cm *ClosestMatch) Accuracy() float64 {
 			numTrials += 1.0
 		}
 
+		// test the original string
 		if cm.Closest(testString) == originalTestString {
 			percentCorrect += 1.0
 		}
