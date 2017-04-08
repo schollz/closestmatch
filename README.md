@@ -1,16 +1,10 @@
 
-<p align="center">
-<!--<img
-    src="logo.png"
-    width="260" height="80" border="0" alt="closestmatch">-->
-<h1>closestmatch</h1>
-<br>
+# closestmatch
+
 <a href="https://travis-ci.org/schollz/closestmatch"><img src="https://img.shields.io/travis/schollz/closestmatch.svg?style=flat-square" alt="Build Status"></a>
 <a href="http://gocover.io/github.com/schollz/closestmatch"><img src="https://img.shields.io/badge/coverage-98%25-brightgreen.svg?style=flat-square" alt="Code Coverage"></a>
 <a href="https://godoc.org/github.com/schollz/closestmatch"><img src="https://img.shields.io/badge/api-reference-blue.svg?style=flat-square" alt="GoDoc"></a>
-</p>
 
-<p align="center">Golang library for fuzzing matching within a set of strings :poodle:</a></p>
 
 *closestmatch* is a simple and *fast* library for finding the closest match in a set of strings. This is useful if you want the user to input a string and then find a key in a database that is closest to the user input. Works better than Levenshtein in many cases.
 
@@ -22,6 +16,14 @@ Since it uses a map for the lookup table it is fast and requires very little mem
 
 Getting Started
 ===============
+
+## Install
+
+```
+go get -u -v github.com/schollz/closestmatch
+```
+
+## Use 
 
 ####  Create a *closestmatch* object from a list words
 
