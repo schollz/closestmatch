@@ -62,6 +62,27 @@ func BenchmarkLargeFile(b *testing.B) {
 	}
 }
 
+func BenchmarkFileLoad(b *testing.B) {
+	bText, _ := ioutil.ReadFile("test/books.list")
+	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
+	cm := New(wordsToTest, []int{3, 4})
+	cm.Save("test/books.list.cm.gz")
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		Load("test/books.list.cm.gz")
+	}
+}
+
+func BenchmarkFileSave(b *testing.B) {
+	bText, _ := ioutil.ReadFile("test/books.list")
+	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
+	cm := New(wordsToTest, []int{3, 4})
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		cm.Save("test/books.list.cm.gz")
+	}
+}
+
 func ExampleMatching() {
 	cm := New(test.WordsToTest, []int{1, 2, 3})
 	for _, searchWord := range test.SearchWords {
