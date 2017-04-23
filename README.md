@@ -8,6 +8,7 @@
 
 *closestmatch* is a simple and fast Go library for fuzzy matching an input string to a list of target strings. *closestmatch* is useful for handling input from a user where the input (which could be mispelled or out of order) needs to match a key in a database. *closestmatch* uses a [bag-of-words approach](https://en.wikipedia.org/wiki/Bag-of-words_model) to precompute character n-grams to represent each possible target string. The closest matches have highest overlap between the sets of n-grams. The precomputation scales well and is much faster and more accurate than Levenshtein for long strings.
 
+
 Getting Started
 ===============
 
@@ -90,14 +91,8 @@ BenchmarkClosestOne-8     424671        33654         -92.08%
 BenchmarkLargeFile-8      121750600     11784608      -90.32%
 ```
 
-The `New()` function is so much faster in *levenshtein* because there is no precomputation needed (obviously).
+The `New()` function in *closestmatch* is so slower than *levenshtein* because there is precomputation needed.
 
-## Todo
+## License
 
-- [x] ClosestN(n int) returns closest n matches
-- [x] Function to compare accuracy (for tests?)
-- [x] Open should have []int{1,2,3} for the specified substructure lengths, compare different lengths
-- [x] Save/Load for precomputation (change Open -> New)
-- [x] Use more intuitive variable names + improve documentation
-- [x] How does this relate to bag of words?
-- [ ] Compare to agrep (write a utility)
+MIT
