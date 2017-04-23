@@ -49,13 +49,13 @@ fmt.Println(cm.ClosestN("kind gizard",3))
 ```golang
 // Calculate accuracy
 fmt.Println(cm.Accuracy())
-// ~ 53 % (still way better than Levenshtein which hits 0% with this particular set)
+// ~ 66 % (still way better than Levenshtein which hits 0% with this particular set)
 
 // Improve accuracy by adding more bags
 bagSizes = []int{2, 3, 4}
 cm = closestmatch.New(wordsToTest, bagSizes)
 fmt.Println(cm.Accuracy())
-// accuracy improves to ~ 75 %
+// accuracy improves to ~ 76 %
 ```
 
 #### Save/Load
@@ -72,23 +72,22 @@ fmt.Println(cm2.Closest("lizard wizard"))
 
 ### Accuracy and Speed
 
-*closestmatch* is more accurate than Levenshtein for long strings (like in the test corpus). If you run `go test` the tests will pass which validate that Levenshtein performs < 60% accuracy and *closestmatch* performs with > 98% accuracy. 
+*closestmatch* is more accurate than Levenshtein for long strings (like in the test corpus). If you run `go test` the tests will pass which validate that Levenshtein performs < 60% accuracy and *closestmatch* performs with > 90% accuracy (usually it is 95-98%). 
 
-*closestmatch* is 10-12x faster than [a fast implementation of Levenshtein](https://groups.google.com/forum/#!topic/golang-nuts/YyH1f_qCZVc). Try it yourself with the benchmarks:
+*closestmatch* is ~20x faster than [a fast implementation of Levenshtein](https://groups.google.com/forum/#!topic/golang-nuts/YyH1f_qCZVc). Try it yourself with the benchmarks:
 
 ```bash
-cd $GOPATH/src/github.com/schollz/closestmatch && go test -bench=. > closestmatch.bench
-cd $GOPATH/src/github.com/schollz/closestmatch/levenshtein && go test -bench=. > levenshtein.bench
+cd $GOPATH/src/github.com/schollz/closestmatch && go test -run=None -bench=. > closestmatch.bench
+cd $GOPATH/src/github.com/schollz/closestmatch/levenshtein && go test -run=None -bench=. > levenshtein.bench
 benchcmp levenshtein.bench ../closestmatch.bench
 ```
 
-which gives something like
+which gives the following benchmark (on Intel i7-3770 CPU @ 3.40GHz w/ 8 processors):
 
 ```bash
 benchmark                 old ns/op     new ns/op     delta
-BenchmarkNew-8            1.52          1739997       +114473386.84%
-BenchmarkClosestOne-8     424671        33654         -92.08%
-BenchmarkLargeFile-8      121750600     11784608      -90.32%
+BenchmarkNew-8            1.47          1933870       +131555682.31%
+BenchmarkClosestOne-8     104603530     4855916       -95.36%
 ```
 
 The `New()` function in *closestmatch* is so slower than *levenshtein* because there is precomputation needed.

@@ -57,17 +57,6 @@ func BenchmarkClosest30(b *testing.B) {
 	}
 }
 
-func BenchmarkLargeFile(b *testing.B) {
-	bText, _ := ioutil.ReadFile("test/books.list")
-	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
-	cm := New(wordsToTest, []int{3})
-	searchWord := "island of a thod mirrors"
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		cm.Closest(searchWord)
-	}
-}
-
 func BenchmarkFileLoad(b *testing.B) {
 	bText, _ := ioutil.ReadFile("test/books.list")
 	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")

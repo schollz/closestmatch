@@ -34,9 +34,10 @@ func ExampleMatching() {
 	// Output:
 	// 'cervantes don quixote' matched 'emma by jane austen'
 	// 'mysterious afur at styles by christie' matched 'the mysterious affair at styles by agatha christie'
-	// 'charles dickens' matched 'beowulf'
-	// 'william shakespeare' matched 'the iliad by homer'
+	// 'hard times by charles dickens' matched 'hard times by charles dickens'
+	// 'complete william shakespeare' matched 'the iliad by homer'
 	// 'war by hg wells' matched 'beowulf'
+
 }
 
 func TestAccuray(t *testing.T) {
