@@ -14,22 +14,23 @@ import (
 type ClosestMatch struct {
 	SubstringSizes []int
 	SubstringToID  map[string]map[uint32]struct{}
-	IDToKey        map[uint32]string
-	NumSubstrings  map[uint32]int
+	ID             map[uint32]IDInfo
+}
+
+type IDInfo struct {
+	Key           string
+	NumSubstrings int
 }
 
 // New returns a new structure for performing closest matches
 func New(possible []string, subsetSize []int) *ClosestMatch {
 	cm := new(ClosestMatch)
-
 	cm.SubstringSizes = subsetSize
 	cm.SubstringToID = make(map[string]map[uint32]struct{})
-	cm.IDToKey = make(map[uint32]string)
-	cm.NumSubstrings = make(map[uint32]int)
+	cm.ID = make(map[uint32]IDInfo)
 	for i, s := range possible {
-		cm.IDToKey[uint32(i)] = s
 		substrings := cm.splitWord(strings.ToLower(s))
-		cm.NumSubstrings[uint32(i)] = len(substrings)
+		cm.ID[uint32(i)] = IDInfo{Key: s, NumSubstrings: len(substrings)}
 		for substring := range substrings {
 			if _, ok := cm.SubstringToID[substring]; !ok {
 				cm.SubstringToID[substring] = make(map[uint32]struct{})
@@ -72,10 +73,10 @@ func (cm *ClosestMatch) match(searchWord string) map[string]int {
 	for substring := range searchSubstrings {
 		if ids, ok := cm.SubstringToID[substring]; ok {
 			for id := range ids {
-				if _, ok2 := m[cm.IDToKey[id]]; !ok2 {
-					m[cm.IDToKey[id]] = 0
+				if _, ok2 := m[cm.ID[id].Key]; !ok2 {
+					m[cm.ID[id].Key] = 0
 				}
-				m[cm.IDToKey[id]] += 200000 / (searchSubstringsLen + cm.NumSubstrings[id])
+				m[cm.ID[id].Key] += 200000 / (searchSubstringsLen + cm.ID[id].NumSubstrings)
 			}
 		}
 	}
@@ -147,14 +148,14 @@ func (cm *ClosestMatch) Accuracy() float64 {
 	for wordTrials := 0; wordTrials < 100; wordTrials++ {
 
 		var testString, originalTestString string
-		testStringNum := rand.Intn(len(cm.IDToKey))
+		testStringNum := rand.Intn(len(cm.ID))
 		i := 0
-		for id := range cm.IDToKey {
+		for id := range cm.ID {
 			i++
 			if i != testStringNum {
 				continue
 			}
-			originalTestString = cm.IDToKey[id]
+			originalTestString = cm.ID[id].Key
 			break
 		}
 
