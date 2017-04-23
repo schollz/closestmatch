@@ -1,6 +1,7 @@
 
 # closestmatch :page_with_curl:
 
+<img src="https://img.shields.io/badge/version-2.0.0-brightgreen.svg?style=flat-square" alt="Version">
 <a href="https://travis-ci.org/schollz/closestmatch"><img src="https://img.shields.io/travis/schollz/closestmatch.svg?style=flat-square" alt="Build Status"></a>
 <a href="http://gocover.io/github.com/schollz/closestmatch"><img src="https://img.shields.io/badge/coverage-98%25-brightgreen.svg?style=flat-square" alt="Code Coverage"></a>
 <a href="https://godoc.org/github.com/schollz/closestmatch"><img src="https://img.shields.io/badge/api-reference-blue.svg?style=flat-square" alt="GoDoc"></a>
@@ -60,10 +61,10 @@ fmt.Println(cm.Accuracy())
 
 ```golang
 // Save your current calculated bags
-cm.Save("closestmatches.json")
+cm.Save("closestmatches.gob")
 
 // Open it again
-cm2, _ := closestmatch.Load("closestmatches.json")
+cm2, _ := closestmatch.Load("closestmatches.gob")
 fmt.Println(cm2.Closest("lizard wizard"))
 // prints "The Lizard Wizard"
 ```
@@ -72,7 +73,7 @@ fmt.Println(cm2.Closest("lizard wizard"))
 
 *closestmatch* is more accurate than Levenshtein for long strings (like in the test corpus). If you run `go test` the tests will pass which validate that Levenshtein performs < 60% accuracy and *closestmatch* performs with > 98% accuracy. 
 
-*closestmatch* is 6-7x faster than [a fast implementation of Levenshtein](https://groups.google.com/forum/#!topic/golang-nuts/YyH1f_qCZVc). Try it yourself with the benchmarks:
+*closestmatch* is 10-12x faster than [a fast implementation of Levenshtein](https://groups.google.com/forum/#!topic/golang-nuts/YyH1f_qCZVc). Try it yourself with the benchmarks:
 
 ```bash
 cd $GOPATH/src/github.com/schollz/closestmatch && go test -bench=. > closestmatch.bench
@@ -84,9 +85,9 @@ which gives something like
 
 ```bash
 benchmark                 old ns/op     new ns/op     delta
-BenchmarkNew-8            1.49          624681        +41924799.33%
-BenchmarkClosestOne-8     432350        61401         -85.80%
-BenchmarkLargeFile-8      122050000     19925964      -83.67%
+BenchmarkNew-8            1.52          1739997       +114473386.84%
+BenchmarkClosestOne-8     424671        33654         -92.08%
+BenchmarkLargeFile-8      121750600     11784608      -90.32%
 ```
 
 The `New()` function is so much faster in *levenshtein* because there is no precomputation needed (obviously).

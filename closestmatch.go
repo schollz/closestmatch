@@ -12,7 +12,6 @@ import (
 // substring sizes and carrys a map of the substrings for
 // easy lookup
 type ClosestMatch struct {
-	Substrings     map[string]map[string]struct{}
 	SubstringSizes []int
 	SubstringToID  map[string]map[uint32]struct{}
 	IDToKey        map[uint32]string
@@ -96,13 +95,13 @@ func (cm *ClosestMatch) ClosestN(searchWord string, n int) []string {
 	matches := make([]string, n)
 	j := 0
 	for i, pair := range rankByWordCount(cm.match(searchWord)) {
-		j = i
 		if i == n {
 			break
 		}
 		matches[i] = pair.Key
+		j = i
 	}
-	return matches[:j]
+	return matches[:j+1]
 }
 
 func rankByWordCount(wordFrequencies map[string]int) PairList {
