@@ -16,27 +16,14 @@ func BenchmarkNew(b *testing.B) {
 }
 
 func BenchmarkClosestOne(b *testing.B) {
-	cm := New(test.WordsToTest)
+	bText, _ := ioutil.ReadFile("../test/books.list")
+	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
+	cm := New(wordsToTest)
 	searchWord := test.SearchWords[0]
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		cm.Closest(searchWord)
 	}
-}
-
-func BenchmarkLargeFile(b *testing.B) {
-	bText, _ := ioutil.ReadFile("../test/books.list")
-	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
-	cm := New(wordsToTest)
-	searchWord := "island of a thod mirrors"
-	// fmt.Println(cm.Closest(searchWord))
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		cm.Closest(searchWord)
-	}
-
-	// Test against agrep using
-	// perf stat -r 50 -d agrep -iBy 'island of a thod mirrors' test/books.list
 }
 
 func ExampleMatching() {
