@@ -92,8 +92,15 @@ func ExampleMatching() {
 	// 'cervantes don quixote' matched 'don quixote by miguel de cervantes saavedra'
 	// 'mysterious afur at styles by christie' matched 'the mysterious affair at styles by agatha christie'
 	// 'charles dickens' matched 'hard times by charles dickens'
-	// 'william shakespeare' matched 'the tragedy of romeo and juliet by william shakespeare'
+	// 'william shakespeare' matched 'the complete works of william shakespeare by william shakespeare'
 	// 'war by hg wells' matched 'the war of the worlds by h. g. wells'
+}
+
+func ExampleMatchingN() {
+	cm := New(test.WordsToTest, []int{1, 2, 3})
+	fmt.Println(cm.ClosestN("war by hg wells", 3))
+	// Output:
+	// [the war of the worlds by h. g. wells the time machine by h. g. wells hedda gabler by henrik ibsen]
 }
 
 func ExampleMatchingBigList() {
@@ -104,13 +111,6 @@ func ExampleMatchingBigList() {
 	fmt.Println(cm.Closest(searchWord))
 	// Output:
 	// island of a thousand mirrors by nayomi munaweera
-}
-
-func ExampleMatchingN() {
-	cm := New(test.WordsToTest, []int{1, 2, 3})
-	fmt.Println(cm.ClosestN("war by hg wells", 3))
-	// Output:
-	// [the war of the worlds by h. g. wells the time machine by h. g. wells the iliad by homer]
 }
 
 func TestAccuray(t *testing.T) {

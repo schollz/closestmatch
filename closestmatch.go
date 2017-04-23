@@ -14,6 +14,9 @@ import (
 type ClosestMatch struct {
 	Substrings     map[string]map[string]struct{}
 	SubstringSizes []int
+	SubstringToID  map[string]map[uint32]struct{}
+	IDToKey        map[uint32]string
+	NumSubstrings  map[uint32]int
 }
 
 // New returns a new structure for performing closest matches
@@ -21,9 +24,19 @@ func New(possible []string, subsetSize []int) *ClosestMatch {
 	cm := new(ClosestMatch)
 
 	cm.SubstringSizes = subsetSize
-	cm.Substrings = make(map[string]map[string]struct{})
-	for _, s := range possible {
-		cm.Substrings[s] = cm.splitWord(strings.ToLower(s))
+	cm.SubstringToID = make(map[string]map[uint32]struct{})
+	cm.IDToKey = make(map[uint32]string)
+	cm.NumSubstrings = make(map[uint32]int)
+	for i, s := range possible {
+		cm.IDToKey[uint32(i)] = s
+		substrings := cm.splitWord(strings.ToLower(s))
+		cm.NumSubstrings[uint32(i)] = len(substrings)
+		for substring := range substrings {
+			if _, ok := cm.SubstringToID[substring]; !ok {
+				cm.SubstringToID[substring] = make(map[uint32]struct{})
+			}
+			cm.SubstringToID[substring][uint32(i)] = struct{}{}
+		}
 	}
 
 	return cm
@@ -53,78 +66,66 @@ func (cm *ClosestMatch) Save(filename string) error {
 	return enc.Encode(cm)
 }
 
-// ClosestN searches for the `searchWord` and returns the `n` closest matches
-// as a string slice
-func (cm *ClosestMatch) ClosestN(searchWord string, n int) []string {
-	searchWordHash := cm.splitWord(searchWord)
-	worstBestVal := 1000000
-	bestWords := make(map[string]int)
-	for word := range cm.Substrings {
-		if len(bestWords) < n {
-			newVal := cm.compareIfBetter(&searchWordHash, word, 0, len(word)+len(searchWord))
-			bestWords[word] = newVal
-			if newVal < worstBestVal {
-				worstBestVal = newVal
-			}
-		} else {
-			newVal := cm.compareIfBetter(&searchWordHash, word, worstBestVal, len(word)+len(searchWord))
-			if newVal > worstBestVal {
-				keyToDelete := ""
-				newWorstBestVal := 100000
-				for key, val := range bestWords {
-					if val == worstBestVal {
-						keyToDelete = key
-					} else if val < newWorstBestVal {
-						newWorstBestVal = val
-					}
+func (cm *ClosestMatch) match(searchWord string) map[string]int {
+	searchSubstrings := cm.splitWord(searchWord)
+	searchSubstringsLen := len(searchSubstrings)
+	m := make(map[string]int)
+	for substring := range searchSubstrings {
+		if ids, ok := cm.SubstringToID[substring]; ok {
+			for id := range ids {
+				if _, ok2 := m[cm.IDToKey[id]]; !ok2 {
+					m[cm.IDToKey[id]] = 0
 				}
-				delete(bestWords, keyToDelete)
-				bestWords[word] = newVal
-				if newVal < newWorstBestVal {
-					newWorstBestVal = newVal
-				}
-				worstBestVal = newWorstBestVal
+				m[cm.IDToKey[id]] += 200000 / (searchSubstringsLen + cm.NumSubstrings[id])
 			}
-
 		}
 	}
-
-	// Return a sorted list
-	bestWordsSlice := make([]string, len(bestWords))
-	nm := map[int][]string{}
-	var a []int
-	for k, v := range bestWords {
-		nm[v] = append(nm[v], k)
-	}
-	for k := range nm {
-		a = append(a, k)
-	}
-	sort.Sort(sort.Reverse(sort.IntSlice(a)))
-	i := 0
-	for _, k := range a {
-		for _, s := range nm[k] {
-			bestWordsSlice[i] = s
-			i++
-		}
-	}
-
-	return bestWordsSlice[0:i]
+	return m
 }
 
 // Closest searches for the `searchWord` and returns the closest match
 func (cm *ClosestMatch) Closest(searchWord string) string {
-	searchWordHash := cm.splitWord(searchWord)
-	bestVal := 0
-	bestWord := ""
-	for word := range cm.Substrings {
-		newVal := cm.compareIfBetter(&searchWordHash, word, bestVal, len(word)+len(searchWord))
-		if newVal > bestVal {
-			bestVal = newVal
-			bestWord = word
-		}
+	for _, pair := range rankByWordCount(cm.match(searchWord)) {
+		return pair.Key
 	}
-	return bestWord
+	return ""
 }
+
+// ClosestN searches for the `searchWord` and returns the n closests matches
+func (cm *ClosestMatch) ClosestN(searchWord string, n int) []string {
+	matches := make([]string, n)
+	j := 0
+	for i, pair := range rankByWordCount(cm.match(searchWord)) {
+		j = i
+		if i == n {
+			break
+		}
+		matches[i] = pair.Key
+	}
+	return matches[:j]
+}
+
+func rankByWordCount(wordFrequencies map[string]int) PairList {
+	pl := make(PairList, len(wordFrequencies))
+	i := 0
+	for k, v := range wordFrequencies {
+		pl[i] = Pair{k, v}
+		i++
+	}
+	sort.Sort(sort.Reverse(pl))
+	return pl
+}
+
+type Pair struct {
+	Key   string
+	Value int
+}
+
+type PairList []Pair
+
+func (p PairList) Len() int           { return len(p) }
+func (p PairList) Less(i, j int) bool { return p[i].Value < p[j].Value }
+func (p PairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
 func (cm *ClosestMatch) splitWord(word string) map[string]struct{} {
 	wordHash := make(map[string]struct{})
@@ -134,35 +135,6 @@ func (cm *ClosestMatch) splitWord(word string) map[string]struct{} {
 		}
 	}
 	return wordHash
-}
-
-func (cm *ClosestMatch) compareIfBetter(one *map[string]struct{}, substring string, minPercentage int, lenSum int) int {
-	minPercentage = minPercentage * lenSum / (2 * 1000)
-	shared := 0
-	two := cm.Substrings[substring]
-	lenTwo := len(two)
-	if len(*one) < lenTwo {
-		numberLeft := len(*one)
-		for item := range *one {
-			if _, ok := two[item]; ok {
-				shared++
-			} else if numberLeft+shared < minPercentage {
-				return (2 * 1000) / lenSum * shared
-			}
-			numberLeft--
-		}
-	} else {
-		numberLeft := lenTwo
-		for item := range two {
-			if _, ok := (*one)[item]; ok {
-				shared++
-			} else if numberLeft+shared < minPercentage {
-				return (2 * 1000) / lenSum * shared
-			}
-			numberLeft--
-		}
-	}
-	return (2 * 1000) / lenSum * shared
 }
 
 // Accuracy runs some basic tests against the wordlist to
@@ -176,14 +148,14 @@ func (cm *ClosestMatch) Accuracy() float64 {
 	for wordTrials := 0; wordTrials < 100; wordTrials++ {
 
 		var testString, originalTestString string
-		testStringNum := rand.Intn(len(cm.Substrings))
+		testStringNum := rand.Intn(len(cm.IDToKey))
 		i := 0
-		for s := range cm.Substrings {
+		for id := range cm.IDToKey {
 			i++
 			if i != testStringNum {
 				continue
 			}
-			originalTestString = s
+			originalTestString = cm.IDToKey[id]
 			break
 		}
 
