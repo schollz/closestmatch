@@ -66,22 +66,78 @@ func (cm *ClosestMatch) Save(filename string) error {
 	return enc.Encode(cm)
 }
 
-func (cm *ClosestMatch) match(searchWord string) map[string]int {
-	searchSubstrings := cm.splitWord(searchWord)
-	searchSubstringsLen := len(searchSubstrings)
-	m := make(map[string]int)
-	for substring := range searchSubstrings {
-		if ids, ok := cm.SubstringToID[substring]; ok {
+func (cm *ClosestMatch) worker(id int, jobs <-chan job, results chan<- result) {
+	for j := range jobs {
+		m := make(map[string]int)
+		if ids, ok := cm.SubstringToID[j.substring]; ok {
 			for id := range ids {
 				if _, ok2 := m[cm.ID[id].Key]; !ok2 {
 					m[cm.ID[id].Key] = 0
 				}
-				m[cm.ID[id].Key] += 200000 / (searchSubstringsLen + cm.ID[id].NumSubstrings)
+				m[cm.ID[id].Key] += 200000 / (j.searchSubstringsLen + cm.ID[id].NumSubstrings)
+			}
+		}
+		results <- result{m: m}
+	}
+}
+
+type job struct {
+	searchSubstringsLen int
+	substring           string
+}
+
+type result struct {
+	m map[string]int
+}
+
+func (cm *ClosestMatch) match(searchWord string) map[string]int {
+	searchSubstrings := cm.splitWord(searchWord)
+	searchSubstringsLen := len(searchSubstrings)
+
+	jobs := make(chan job, searchSubstringsLen)
+	results := make(chan result, searchSubstringsLen)
+	workers := 8
+
+	for w := 1; w <= workers; w++ {
+		go cm.worker(w, jobs, results)
+	}
+
+	for substring := range searchSubstrings {
+		jobs <- job{searchSubstringsLen: searchSubstringsLen, substring: substring}
+	}
+	close(jobs)
+
+	m := make(map[string]int)
+	for a := 1; a <= searchSubstringsLen; a++ {
+		r := <-results
+		for key := range r.m {
+			if val, ok := m[key]; ok {
+				m[key] += val
+			} else {
+				m[key] = r.m[key]
 			}
 		}
 	}
+
 	return m
 }
+
+// func (cm *ClosestMatch) match(searchWord string) map[string]int {
+// 	searchSubstrings := cm.splitWord(searchWord)
+// 	searchSubstringsLen := len(searchSubstrings)
+// 	m := make(map[string]int)
+// 	for substring := range searchSubstrings {
+// 		if ids, ok := cm.SubstringToID[substring]; ok {
+// 			for id := range ids {
+// 				if _, ok2 := m[cm.ID[id].Key]; !ok2 {
+// 					m[cm.ID[id].Key] = 0
+// 				}
+// 				m[cm.ID[id].Key] += 200000 / (searchSubstringsLen + cm.ID[id].NumSubstrings)
+// 			}
+// 		}
+// 	}
+// 	return m
+// }
 
 // Closest searches for the `searchWord` and returns the closest match
 func (cm *ClosestMatch) Closest(searchWord string) string {
