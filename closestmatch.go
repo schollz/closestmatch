@@ -70,11 +70,12 @@ func (cm *ClosestMatch) worker(id int, jobs <-chan job, results chan<- result) {
 	for j := range jobs {
 		m := make(map[string]int)
 		if ids, ok := cm.SubstringToID[j.substring]; ok {
+			weight := 100000 / len(ids)
 			for id := range ids {
 				if _, ok2 := m[cm.ID[id].Key]; !ok2 {
 					m[cm.ID[id].Key] = 0
 				}
-				m[cm.ID[id].Key] += 1 //200000 / (j.searchWordLen + len(cm.ID[id].Key))
+				m[cm.ID[id].Key] += weight
 			}
 		}
 		results <- result{m: m}
@@ -110,8 +111,8 @@ func (cm *ClosestMatch) match(searchWord string) map[string]int {
 	for a := 1; a <= searchSubstringsLen; a++ {
 		r := <-results
 		for key := range r.m {
-			if val, ok := m[key]; ok {
-				m[key] += val
+			if _, ok := m[key]; ok {
+				m[key] += r.m[key]
 			} else {
 				m[key] = r.m[key]
 			}
@@ -121,28 +122,8 @@ func (cm *ClosestMatch) match(searchWord string) map[string]int {
 	return m
 }
 
-// func (cm *ClosestMatch) match(searchWord string) map[string]int {
-// 	searchSubstrings := cm.splitWord(searchWord)
-// 	searchSubstringsLen := len(searchSubstrings)
-// 	m := make(map[string]int)
-// 	for substring := range searchSubstrings {
-// 		if ids, ok := cm.SubstringToID[substring]; ok {
-// 			for id := range ids {
-// 				if _, ok2 := m[cm.ID[id].Key]; !ok2 {
-// 					m[cm.ID[id].Key] = 0
-// 				}
-// 				m[cm.ID[id].Key] += 200000 / (searchSubstringsLen + cm.ID[id].NumSubstrings)
-// 			}
-// 		}
-// 	}
-// 	return m
-// }
-
 // Closest searches for the `searchWord` and returns the closest match
 func (cm *ClosestMatch) Closest(searchWord string) string {
-	// for _, pair := range rankByWordCount(cm.match(searchWord)) {
-	// 	fmt.Println(pair)
-	// }
 	for _, pair := range rankByWordCount(cm.match(searchWord)) {
 		return pair.Key
 	}
@@ -189,7 +170,10 @@ func (cm *ClosestMatch) splitWord(word string) map[string]struct{} {
 	wordHash := make(map[string]struct{})
 	for _, j := range cm.SubstringSizes {
 		for i := 0; i < len(word)-j; i++ {
-			wordHash[string(word[i:i+j])] = struct{}{}
+			substring := string(word[i : i+j])
+			if len(strings.TrimSpace(substring)) > 0 {
+				wordHash[string(word[i:i+j])] = struct{}{}
+			}
 		}
 	}
 	return wordHash

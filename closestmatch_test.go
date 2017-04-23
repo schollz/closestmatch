@@ -104,10 +104,10 @@ func ExampleMatchingSimple() {
 }
 
 func ExampleMatchingN() {
-	cm := New(test.WordsToTest, []int{3, 4})
+	cm := New(test.WordsToTest, []int{1, 2, 3})
 	fmt.Println(cm.ClosestN("war by hg wells", 3))
 	// Output:
-	// [the war of the worlds by h. g. wells the time machine by h. g. wells hedda gabler by henrik ibsen]
+	// [the war of the worlds by h. g. wells the time machine by h. g. wells tractatus logico-philosophicus by ludwig wittgenstein]
 }
 
 func ExampleMatchingBigList() {
@@ -120,8 +120,8 @@ func ExampleMatchingBigList() {
 	// island of a thousand mirrors by nayomi munaweera
 }
 
-func TestAccuray(t *testing.T) {
-	cm := New(test.WordsToTest, []int{3})
+func TestAccuracy(t *testing.T) {
+	cm := New(test.WordsToTest, []int{1, 2})
 	accuracy := cm.Accuracy()
 	if accuracy < 90 {
 		t.Errorf("Accuracy should be higher than %2.1f", accuracy)
@@ -129,7 +129,7 @@ func TestAccuray(t *testing.T) {
 }
 
 func TestSaveLoad(t *testing.T) {
-	cm := New(test.WordsToTest, []int{1, 2, 3})
+	cm := New(test.WordsToTest, []int{2, 3})
 	err := cm.Save("test.txt")
 	if err != nil {
 		t.Error(err)
