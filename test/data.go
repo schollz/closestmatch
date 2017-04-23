@@ -110,7 +110,7 @@ The Kingdom of This World by Alejo Carpentier
 Hitty, Her First Hundred Years by Rachel Field`
 
 var WordsToTest []string
-var SearchWords = []string{"cervantes don quixote", "mysterious afur at styles by christie", "charles dickens", "william shakespeare", "War by HG Wells"}
+var SearchWords = []string{"cervantes don quixote", "mysterious afur at styles by christie", "hard times by charles dickens", "complete william shakespeare", "War by HG Wells"}
 
 func init() {
 	WordsToTest = strings.Split(strings.ToLower(books), "\n")

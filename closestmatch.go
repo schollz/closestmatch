@@ -74,7 +74,7 @@ func (cm *ClosestMatch) worker(id int, jobs <-chan job, results chan<- result) {
 				if _, ok2 := m[cm.ID[id].Key]; !ok2 {
 					m[cm.ID[id].Key] = 0
 				}
-				m[cm.ID[id].Key] += 200000 / (j.searchSubstringsLen + cm.ID[id].NumSubstrings)
+				m[cm.ID[id].Key] += 1 //200000 / (j.searchWordLen + len(cm.ID[id].Key))
 			}
 		}
 		results <- result{m: m}
@@ -82,8 +82,7 @@ func (cm *ClosestMatch) worker(id int, jobs <-chan job, results chan<- result) {
 }
 
 type job struct {
-	searchSubstringsLen int
-	substring           string
+	substring string
 }
 
 type result struct {
@@ -103,7 +102,7 @@ func (cm *ClosestMatch) match(searchWord string) map[string]int {
 	}
 
 	for substring := range searchSubstrings {
-		jobs <- job{searchSubstringsLen: searchSubstringsLen, substring: substring}
+		jobs <- job{substring: substring}
 	}
 	close(jobs)
 
@@ -141,6 +140,9 @@ func (cm *ClosestMatch) match(searchWord string) map[string]int {
 
 // Closest searches for the `searchWord` and returns the closest match
 func (cm *ClosestMatch) Closest(searchWord string) string {
+	// for _, pair := range rankByWordCount(cm.match(searchWord)) {
+	// 	fmt.Println(pair)
+	// }
 	for _, pair := range rankByWordCount(cm.match(searchWord)) {
 		return pair.Key
 	}
