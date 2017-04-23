@@ -1,3 +1,3 @@
 .PHONY: test
 test:
-	go test -cover -run=. -bench=. ./...
+	go test -cover -run=.
