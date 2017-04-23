@@ -1,8 +1,7 @@
 
 # closestmatch :page_with_curl:
 
-<img src="https://img.shields.io/badge/version-2.0.0-brightgreen.svg?style=flat-square" alt="Version">
-<a href="https://travis-ci.org/schollz/closestmatch"><img src="https://img.shields.io/travis/schollz/closestmatch.svg?style=flat-square" alt="Build Status"></a>
+<img src="https://img.shields.io/badge/version-2.0.0-brightgreen.svg?style=flat-square" alt="Version"><a href="https://travis-ci.org/schollz/closestmatch"><img src="https://img.shields.io/travis/schollz/closestmatch.svg?style=flat-square" alt="Build Status"></a>
 <a href="http://gocover.io/github.com/schollz/closestmatch"><img src="https://img.shields.io/badge/coverage-98%25-brightgreen.svg?style=flat-square" alt="Code Coverage"></a>
 <a href="https://godoc.org/github.com/schollz/closestmatch"><img src="https://img.shields.io/badge/api-reference-blue.svg?style=flat-square" alt="GoDoc"></a>
 
