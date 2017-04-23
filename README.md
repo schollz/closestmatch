@@ -72,7 +72,7 @@ fmt.Println(cm2.Closest("lizard wizard"))
 
 ### Accuracy and Speed
 
-*closestmatch* is more accurate than Levenshtein for long strings (like in the test corpus). If you run `go test` the tests will pass which validate that Levenshtein performs < 60% accuracy and *closestmatch* performs with > 90% accuracy (usually it is 95-98%). 
+*closestmatch* is more accurate than Levenshtein for long strings (like in the test corpus). If you run `go test` the tests will pass which validate that Levenshtein performs < 50% accuracy and *closestmatch* performs with > 90% accuracy (usually it is 95-98%). 
 
 *closestmatch* is ~20x faster than [a fast implementation of Levenshtein](https://groups.google.com/forum/#!topic/golang-nuts/YyH1f_qCZVc). Try it yourself with the benchmarks:
 

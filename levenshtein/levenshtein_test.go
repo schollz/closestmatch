@@ -43,7 +43,7 @@ func ExampleMatching() {
 func TestAccuray(t *testing.T) {
 	cm := New(test.WordsToTest)
 	accuracy := cm.Accuracy()
-	if accuracy > 60 {
+	if accuracy > 50 {
 		t.Errorf("Accuracy should be higher than it usually is! %2.1f", accuracy)
 	}
 }
