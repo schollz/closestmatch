@@ -25,7 +25,9 @@ func BenchmarkSplitOne(b *testing.B) {
 }
 
 func BenchmarkClosestOne(b *testing.B) {
-	cm := New(test.WordsToTest, []int{3})
+	bText, _ := ioutil.ReadFile("test/books.list")
+	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
+	cm := New(wordsToTest, []int{3})
 	searchWord := test.SearchWords[0]
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -34,7 +36,9 @@ func BenchmarkClosestOne(b *testing.B) {
 }
 
 func BenchmarkClosest3(b *testing.B) {
-	cm := New(test.WordsToTest, []int{3})
+	bText, _ := ioutil.ReadFile("test/books.list")
+	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
+	cm := New(wordsToTest, []int{3})
 	searchWord := test.SearchWords[0]
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
