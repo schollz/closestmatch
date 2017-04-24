@@ -40,10 +40,26 @@ func ExampleMatching() {
 
 }
 
-func TestAccuray(t *testing.T) {
-	cm := New(test.WordsToTest)
-	accuracy := cm.Accuracy()
-	if accuracy > 50 {
-		t.Errorf("Accuracy should be higher than it usually is! %2.1f", accuracy)
-	}
+func TestAccuracyBookWords(t *testing.T) {
+	bText, _ := ioutil.ReadFile("../test/books.list")
+	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
+	cm := New(wordsToTest)
+	accuracy := cm.AccuracyMutatingWords()
+	fmt.Printf("Accuracy with mutating words in book list:\t%2.1f%%\n", accuracy)
+}
+
+func TestAccuracyBookletters(t *testing.T) {
+	bText, _ := ioutil.ReadFile("../test/books.list")
+	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
+	cm := New(wordsToTest)
+	accuracy := cm.AccuracyMutatingLetters()
+	fmt.Printf("Accuracy with mutating letters in book list:\t%2.1f%%\n", accuracy)
+}
+
+func TestAccuracyDictionaryletters(t *testing.T) {
+	bText, _ := ioutil.ReadFile("../test/popular.txt")
+	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
+	cm := New(wordsToTest)
+	accuracy := cm.AccuracyMutatingWords()
+	fmt.Printf("Accuracy with mutating letters in dictionary:\t%2.1f%%\n", accuracy)
 }

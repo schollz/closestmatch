@@ -17,6 +17,7 @@ type ClosestMatch struct {
 	ID             map[uint32]IDInfo
 }
 
+// IDInfo carries the information about the keys
 type IDInfo struct {
 	Key           string
 	NumSubstrings int
@@ -70,12 +71,12 @@ func (cm *ClosestMatch) worker(id int, jobs <-chan job, results chan<- result) {
 	for j := range jobs {
 		m := make(map[string]int)
 		if ids, ok := cm.SubstringToID[j.substring]; ok {
-			weight := 100000 / len(ids)
+			weight := 200000 / len(ids)
 			for id := range ids {
 				if _, ok2 := m[cm.ID[id].Key]; !ok2 {
 					m[cm.ID[id].Key] = 0
 				}
-				m[cm.ID[id].Key] += weight
+				m[cm.ID[id].Key] += 1 + 0*weight
 			}
 		}
 		results <- result{m: m}
@@ -179,15 +180,15 @@ func (cm *ClosestMatch) splitWord(word string) map[string]struct{} {
 	return wordHash
 }
 
-// Accuracy runs some basic tests against the wordlist to
+// AccuracyMutatingWords runs some basic tests against the wordlist to
 // see how accurate this bag-of-characters method is against
 // the target dataset
-func (cm *ClosestMatch) Accuracy() float64 {
+func (cm *ClosestMatch) AccuracyMutatingWords() float64 {
 	rand.Seed(1)
 	percentCorrect := 0.0
 	numTrials := 0.0
 
-	for wordTrials := 0; wordTrials < 100; wordTrials++ {
+	for wordTrials := 0; wordTrials < 200; wordTrials++ {
 
 		var testString, originalTestString string
 		testStringNum := rand.Intn(len(cm.ID))
@@ -201,24 +202,20 @@ func (cm *ClosestMatch) Accuracy() float64 {
 			break
 		}
 
-		// remove a random word
-		for trial := 0; trial < 4; trial++ {
-			words := strings.Split(originalTestString, " ")
+		var words []string
+		choice := rand.Intn(3)
+		if choice == 0 {
+			// remove a random word
+			words = strings.Split(originalTestString, " ")
 			if len(words) < 3 {
 				continue
 			}
 			deleteWordI := rand.Intn(len(words))
 			words = append(words[:deleteWordI], words[deleteWordI+1:]...)
 			testString = strings.Join(words, " ")
-			if cm.Closest(testString) == originalTestString {
-				percentCorrect += 1.0
-			}
-			numTrials += 1.0
-		}
-
-		// remove a random word and reverse
-		for trial := 0; trial < 4; trial++ {
-			words := strings.Split(originalTestString, " ")
+		} else if choice == 1 {
+			// remove a random word and reverse
+			words = strings.Split(originalTestString, " ")
 			if len(words) > 1 {
 				deleteWordI := rand.Intn(len(words))
 				words = append(words[:deleteWordI], words[deleteWordI+1:]...)
@@ -229,15 +226,9 @@ func (cm *ClosestMatch) Accuracy() float64 {
 				continue
 			}
 			testString = strings.Join(words, " ")
-			if cm.Closest(testString) == originalTestString {
-				percentCorrect += 1.0
-			}
-			numTrials += 1.0
-		}
-
-		// remove a random word and shuffle and replace random letter
-		for trial := 0; trial < 4; trial++ {
-			words := strings.Split(originalTestString, " ")
+		} else {
+			// remove a random word and shuffle and replace 2 random letters
+			words = strings.Split(originalTestString, " ")
 			if len(words) > 1 {
 				deleteWordI := rand.Intn(len(words))
 				words = append(words[:deleteWordI], words[deleteWordI+1:]...)
@@ -255,18 +246,65 @@ func (cm *ClosestMatch) Accuracy() float64 {
 			testString = testString[:ii] + string(letters[rand.Intn(len(letters))]) + testString[ii+1:]
 			ii = rand.Intn(len(testString))
 			testString = testString[:ii] + string(letters[rand.Intn(len(letters))]) + testString[ii+1:]
-			if cm.Closest(testString) == originalTestString {
-				percentCorrect += 1.0
-			}
-			numTrials += 1.0
 		}
-
-		// test the original string
-		if cm.Closest(testString) == originalTestString {
+		closest := cm.Closest(testString)
+		if closest == originalTestString {
 			percentCorrect += 1.0
+		} else {
+			//fmt.Printf("Original: %s, Mutilated: %s, Match: %s\n", originalTestString, testString, closest)
 		}
 		numTrials += 1.0
+	}
+	return 100.0 * percentCorrect / numTrials
+}
 
+// AccuracyMutatingLetters runs some basic tests against the wordlist to
+// see how accurate this bag-of-characters method is against
+// the target dataset when mutating individual letters (adding, removing, changing)
+func (cm *ClosestMatch) AccuracyMutatingLetters() float64 {
+	rand.Seed(1)
+	percentCorrect := 0.0
+	numTrials := 0.0
+
+	for wordTrials := 0; wordTrials < 200; wordTrials++ {
+
+		var testString, originalTestString string
+		testStringNum := rand.Intn(len(cm.ID))
+		i := 0
+		for id := range cm.ID {
+			i++
+			if i != testStringNum {
+				continue
+			}
+			originalTestString = cm.ID[id].Key
+			break
+		}
+		testString = originalTestString
+
+		// letters to replace with
+		letters := "abcdefghijklmnopqrstuvwxyz"
+
+		choice := rand.Intn(3)
+		if choice == 0 {
+			// replace random letter
+			ii := rand.Intn(len(testString))
+			testString = testString[:ii] + string(letters[rand.Intn(len(letters))]) + testString[ii+1:]
+		} else if choice == 1 {
+			// delete random letter
+			ii := rand.Intn(len(testString))
+			testString = testString[:ii] + testString[ii+1:]
+		} else {
+			// add random letter
+			ii := rand.Intn(len(testString))
+			testString = testString[:ii] + string(letters[rand.Intn(len(letters))]) + testString[ii:]
+		}
+		closest := cm.Closest(testString)
+		if closest == originalTestString {
+			percentCorrect += 1.0
+		} else {
+			//fmt.Printf("Original: %s, Mutilated: %s, Match: %s\n", originalTestString, testString, closest)
+		}
+		numTrials += 1.0
 	}
 
 	return 100.0 * percentCorrect / numTrials

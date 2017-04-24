@@ -93,10 +93,10 @@ func ExampleMatchingSimple() {
 }
 
 func ExampleMatchingN() {
-	cm := New(test.WordsToTest, []int{1, 2, 3})
-	fmt.Println(cm.ClosestN("war by hg wells", 3))
+	cm := New(test.WordsToTest, []int{4})
+	fmt.Println(cm.ClosestN("war h.g. wells", 3))
 	// Output:
-	// [the war of the worlds by h. g. wells the time machine by h. g. wells tractatus logico-philosophicus by ludwig wittgenstein]
+	// [the war of the worlds by h. g. wells the time machine by h. g. wells war and peace by graf leo tolstoy]
 }
 
 func ExampleMatchingBigList() {
@@ -109,16 +109,32 @@ func ExampleMatchingBigList() {
 	// island of a thousand mirrors by nayomi munaweera
 }
 
-func TestAccuracy(t *testing.T) {
-	cm := New(test.WordsToTest, []int{1, 2})
-	accuracy := cm.Accuracy()
-	if accuracy < 90 {
-		t.Errorf("Accuracy should be higher than %2.1f", accuracy)
-	}
+func TestAccuracyBookWords(t *testing.T) {
+	bText, _ := ioutil.ReadFile("test/books.list")
+	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
+	cm := New(wordsToTest, []int{4, 5})
+	accuracy := cm.AccuracyMutatingWords()
+	fmt.Printf("Accuracy with mutating words in book list:\t%2.1f%%\n", accuracy)
+}
+
+func TestAccuracyBookletters(t *testing.T) {
+	bText, _ := ioutil.ReadFile("test/books.list")
+	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
+	cm := New(wordsToTest, []int{5})
+	accuracy := cm.AccuracyMutatingLetters()
+	fmt.Printf("Accuracy with mutating letters in book list:\t%2.1f%%\n", accuracy)
+}
+
+func TestAccuracyDictionaryletters(t *testing.T) {
+	bText, _ := ioutil.ReadFile("test/popular.txt")
+	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
+	cm := New(wordsToTest, []int{2, 3, 4})
+	accuracy := cm.AccuracyMutatingWords()
+	fmt.Printf("Accuracy with mutating letters in dictionary:\t%2.1f%%\n", accuracy)
 }
 
 func TestSaveLoad(t *testing.T) {
-	cm := New(test.WordsToTest, []int{2, 3})
+	cm := New(test.WordsToTest, []int{2, 3, 4})
 	err := cm.Save("test.txt")
 	if err != nil {
 		t.Error(err)
