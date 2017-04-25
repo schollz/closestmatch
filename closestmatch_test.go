@@ -120,7 +120,7 @@ func TestAccuracyBookWords(t *testing.T) {
 func TestAccuracyBookLetters(t *testing.T) {
 	bText, _ := ioutil.ReadFile("test/books.list")
 	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
-	cm := New(wordsToTest, []int{2, 3})
+	cm := New(wordsToTest, []int{5})
 	accuracy := cm.AccuracyMutatingLetters()
 	fmt.Printf("Accuracy with mutating letters in book list:\t%2.1f%%\n", accuracy)
 }
