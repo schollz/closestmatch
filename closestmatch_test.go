@@ -117,15 +117,15 @@ func TestAccuracyBookWords(t *testing.T) {
 	fmt.Printf("Accuracy with mutating words in book list:\t%2.1f%%\n", accuracy)
 }
 
-func TestAccuracyBookletters(t *testing.T) {
+func TestAccuracyBookLetters(t *testing.T) {
 	bText, _ := ioutil.ReadFile("test/books.list")
 	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
-	cm := New(wordsToTest, []int{5})
+	cm := New(wordsToTest, []int{2, 3})
 	accuracy := cm.AccuracyMutatingLetters()
 	fmt.Printf("Accuracy with mutating letters in book list:\t%2.1f%%\n", accuracy)
 }
 
-func TestAccuracyDictionaryletters(t *testing.T) {
+func TestAccuracyDictionaryLetters(t *testing.T) {
 	bText, _ := ioutil.ReadFile("test/popular.txt")
 	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
 	cm := New(wordsToTest, []int{2, 3, 4})
