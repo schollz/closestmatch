@@ -180,12 +180,15 @@ func (p PairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 func (cm *ClosestMatch) splitWord(word string) map[string]struct{} {
 	wordHash := make(map[string]struct{})
 	for _, j := range cm.SubstringSizes {
-		for i := 0; i < len(word)-j; i++ {
+		for i := 0; i < len(word)-j+1; i++ {
 			substring := string(word[i : i+j])
 			if len(strings.TrimSpace(substring)) > 0 {
 				wordHash[string(word[i:i+j])] = struct{}{}
 			}
 		}
+	}
+	if len(wordHash) == 0 {
+		wordHash[word] = struct{}{}
 	}
 	return wordHash
 }

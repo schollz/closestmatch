@@ -78,6 +78,18 @@ func BenchmarkFileSave(b *testing.B) {
 	}
 }
 
+func ExampleMatchingSmall() {
+	cm := New([]string{"love", "loving", "cat", "kit", "cats"}, []int{4})
+	fmt.Println(cm.splitWord("love"))
+	fmt.Println(cm.splitWord("kit"))
+	fmt.Println(cm.Closest("kit"))
+	// Output:
+	// map[love:{}]
+	// map[kit:{}]
+	// kit
+
+}
+
 func ExampleMatchingSimple() {
 	cm := New(test.WordsToTest, []int{3})
 	for _, searchWord := range test.SearchWords {
