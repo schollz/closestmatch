@@ -134,16 +134,26 @@ func TestAccuracyDictionaryLetters(t *testing.T) {
 }
 
 func TestSaveLoad(t *testing.T) {
-	cm := New(test.WordsToTest, []int{2, 3, 4})
-	err := cm.Save("test.txt")
+	bText, _ := ioutil.ReadFile("test/books.list")
+	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
+	type TestStruct struct {
+		cm *ClosestMatch
+	}
+	tst := new(TestStruct)
+	tst.cm = New(wordsToTest, []int{5})
+	err := tst.cm.Save("test.gob")
 	if err != nil {
 		t.Error(err)
 	}
-	cm2, err := Load("test.txt")
+
+	tst2 := new(TestStruct)
+	tst2.cm, err = Load("test.gob")
 	if err != nil {
 		t.Error(err)
 	}
-	if cm2.Closest("war by hg wells") != cm.Closest("war by hg wells") {
-		t.Errorf("Differing answers")
+	answer2 := tst2.cm.Closest("war of the worlds by hg wells")
+	answer1 := tst.cm.Closest("war of the worlds by hg wells")
+	if answer1 != answer2 {
+		t.Errorf("Differing answers: '%s' '%s'", answer1, answer2)
 	}
 }

@@ -1,7 +1,8 @@
 package closestmatch
 
 import (
-	"encoding/gob"
+	"compress/gzip"
+	"encoding/json"
 	"math/rand"
 	"os"
 	"sort"
@@ -52,7 +53,13 @@ func Load(filename string) (*ClosestMatch, error) {
 	if err != nil {
 		return cm, err
 	}
-	err = gob.NewDecoder(f).Decode(&cm)
+
+	w, err := gzip.NewReader(f)
+	if err != nil {
+		return cm, err
+	}
+
+	err = json.NewDecoder(w).Decode(&cm)
 	return cm, err
 }
 
@@ -63,7 +70,10 @@ func (cm *ClosestMatch) Save(filename string) error {
 		return err
 	}
 	defer f.Close()
-	enc := gob.NewEncoder(f)
+	w := gzip.NewWriter(f)
+	defer w.Close()
+	enc := json.NewEncoder(w)
+	// enc.SetIndent("", " ")
 	return enc.Encode(cm)
 }
 
