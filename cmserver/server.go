@@ -84,7 +84,7 @@ func main() {
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:  "port, p",
-			Value: "8050",
+			Value: "8051",
 			Usage: "port to use to listen",
 		},
 		cli.StringFlag{
