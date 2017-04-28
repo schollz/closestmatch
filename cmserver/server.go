@@ -23,8 +23,8 @@ var cm *closestmatch.ClosestMatch
 func main() {
 
 	app := cli.NewApp()
-	app.Name = "boltdb-server"
-	app.Usage = "fancy server for connecting to a BoltDB keystore"
+	app.Name = "cmserver"
+	app.Usage = "fancy server for connecting to a closestmatch db"
 	app.Version = version
 	app.Compiled = time.Now()
 	app.Action = func(c *cli.Context) error {
@@ -43,7 +43,7 @@ func main() {
 		cm, errcm = closestmatch.Load(listfile + ".cm")
 		if errcm != nil {
 			log.Warn(errcm.Error())
-			log.Info("...computing new closestmatch...")
+			log.Info("...loading data file...")
 			var intArray []int
 			for _, intStr := range strings.Split(c.GlobalString("bags"), ",") {
 				intInt, _ := strconv.Atoi(intStr)
@@ -54,9 +54,12 @@ func main() {
 				log.Error(err.Error())
 				return err
 			}
+			log.Info("...computing cm...")
 			cm = closestmatch.New(strings.Split(string(keys), "\n"), intArray)
-			go cm.Save(listfile + ".cm")
 			log.Info("...computed.")
+			log.Info("Saving...")
+			cm.Save(listfile + ".cm")
+			log.Info("...saving.")
 		}
 
 		startTime := time.Now()
