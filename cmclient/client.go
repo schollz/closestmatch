@@ -9,15 +9,13 @@ import (
 
 // Connection is the BoltDB server instance
 type Connection struct {
-	DBName  string
 	Address string
 }
 
 // Open will load a connection to BoltDB
-func Open(address, dbname string) (*Connection, error) {
+func Open(address string) (*Connection, error) {
 	c := new(Connection)
 	c.Address = address
-	c.DBName = dbname
 	resp, err := http.Get(c.Address + "/uptime")
 	if err != nil {
 		return c, err
