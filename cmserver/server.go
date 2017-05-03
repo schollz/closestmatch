@@ -57,9 +57,9 @@ func main() {
 			log.Info("...computing cm...")
 			cm = closestmatch.New(strings.Split(string(keys), "\n"), intArray)
 			log.Info("...computed.")
-			log.Info("Saving...")
-			cm.Save(listfile + ".cm")
-			log.Info("...saving.")
+			//log.Info("Saving...")
+			//cm.Save(listfile + ".cm")
+			//log.Info("...saving.")
 		}
 
 		startTime := time.Now()

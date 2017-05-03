@@ -86,7 +86,7 @@ func (cm *ClosestMatch) worker(id int, jobs <-chan job, results chan<- result) {
 				if _, ok2 := m[cm.ID[id].Key]; !ok2 {
 					m[cm.ID[id].Key] = 0
 				}
-				m[cm.ID[id].Key] += 1000/len(cm.ID[id].Key) + weight
+				m[cm.ID[id].Key] += 1+1000/len(cm.ID[id].Key) + weight
 			}
 		}
 		results <- result{m: m}
