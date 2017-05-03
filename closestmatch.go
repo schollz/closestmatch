@@ -81,12 +81,12 @@ func (cm *ClosestMatch) worker(id int, jobs <-chan job, results chan<- result) {
 	for j := range jobs {
 		m := make(map[string]int)
 		if ids, ok := cm.SubstringToID[j.substring]; ok {
-			weight := 200000 / len(ids)
+			weight := 1000 / len(ids)
 			for id := range ids {
 				if _, ok2 := m[cm.ID[id].Key]; !ok2 {
 					m[cm.ID[id].Key] = 0
 				}
-				m[cm.ID[id].Key] += 1 + 0*weight
+				m[cm.ID[id].Key] += 1000/len(cm.ID[id].Key) + weight
 			}
 		}
 		results <- result{m: m}

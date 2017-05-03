@@ -121,6 +121,34 @@ func ExampleMatchingBigList() {
 	// island of a thousand mirrors by nayomi munaweera
 }
 
+func ExampleMatchingCatcher() {
+	bText, _ := ioutil.ReadFile("test/catcher.txt")
+	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
+	cm := New(wordsToTest, []int{5})
+	searchWord := "catcher in the rye by jd salinger"
+	for i, match := range cm.ClosestN(searchWord, 3) {
+		if i == 2 {
+			fmt.Println(match)
+		}
+	}
+	// Output:
+	// the catcher in the rye by j.d. salinger
+}
+
+func ExampleMatchingPotter() {
+	bText, _ := ioutil.ReadFile("test/potter.txt")
+	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
+	cm := New(wordsToTest, []int{5})
+	searchWord := "harry potter and the half blood prince by j.k. rowling"
+	for i, match := range cm.ClosestN(searchWord, 3) {
+		if i == 1 {
+			fmt.Println(match)
+		}
+	}
+	// Output:
+	//  harry potter and the order of the phoenix (harry potter, #5, part 1) by j.k. rowling
+}
+
 func TestAccuracyBookWords(t *testing.T) {
 	bText, _ := ioutil.ReadFile("test/books.list")
 	wordsToTest := strings.Split(strings.ToLower(string(bText)), "\n")
