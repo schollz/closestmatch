@@ -86,7 +86,7 @@ func (cm *ClosestMatch) worker(id int, jobs <-chan job, results chan<- result) {
 				if _, ok2 := m[cm.ID[id].Key]; !ok2 {
 					m[cm.ID[id].Key] = 0
 				}
-				m[cm.ID[id].Key] += 1+1000/len(cm.ID[id].Key) + weight
+				m[cm.ID[id].Key] += 1 + 1000/len(cm.ID[id].Key) + weight
 			}
 		}
 		results <- result{m: m}
@@ -142,17 +142,15 @@ func (cm *ClosestMatch) Closest(searchWord string) string {
 }
 
 // ClosestN searches for the `searchWord` and returns the n closests matches
-func (cm *ClosestMatch) ClosestN(searchWord string, n int) []string {
-	matches := make([]string, n)
-	j := 0
+func (cm *ClosestMatch) ClosestN(searchWord string, max int) []string {
+	matches := make([]string, 0, max)
 	for i, pair := range rankByWordCount(cm.match(searchWord)) {
-		if i == n {
+		if i >= max {
 			break
 		}
-		matches[i] = pair.Key
-		j = i
+		matches = append(matches, pair.Key)
 	}
-	return matches[:j+1]
+	return matches
 }
 
 func rankByWordCount(wordFrequencies map[string]int) PairList {
