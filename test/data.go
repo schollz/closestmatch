@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-var books = `Pride and Prejudice by Jane Austen
+var Books = `Pride and Prejudice by Jane Austen
 Alice's Adventures in Wonderland by Lewis Carroll
 The Importance of Being Earnest: A Trivial Comedy for Serious People by Oscar Wilde
 A Tale of Two Cities by Charles Dickens
@@ -109,12 +109,37 @@ Red Riding Hood by Sarah Blakley-Cartwright
 The Kingdom of This World by Alejo Carpentier
 Hitty, Her First Hundred Years by Rachel Field`
 
-var WordsToTest []string
+var WordsToTest map[string]interface{}
+var BooksToTest map[string]interface{}
+
 var SearchWords = []string{"cervantes don quixote", "mysterious afur at styles by christie", "hard times by charles dickens", "complete william shakespeare", "War by HG Wells"}
 
 func init() {
-	WordsToTest = strings.Split(strings.ToLower(books), "\n")
-	for i := range SearchWords {
-		SearchWords[i] = strings.ToLower(SearchWords[i])
+
+	WordsToTest = make(map[string]interface{})
+	for _, v := range SearchWords {
+		WordsToTest[v] = map[string]string{"words": v}
 	}
+	// for i := range SearchWords {
+	// 	SearchWords[i] = strings.ToLower(SearchWords[i])
+	// }
+
+	BooksToTest = GetBooks(Books)
+	// for i := range SearchWords {
+	// 	SearchWords[i] = strings.ToLower(SearchWords[i])
+	// }
+}
+
+func GetBooks(text string) map[string]interface{} {
+	booksLines := strings.Split(strings.ToLower(text), "\n")
+	books := make(map[string]interface{})
+	for _, v := range booksLines {
+		pair := strings.Split(v, " by ")
+		author := "unknown"
+		if len(pair) == 2 {
+			author = pair[1]
+		}
+		books[v] = map[string]string{"author": author, "name": v}
+	}
+	return books
 }

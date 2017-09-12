@@ -22,23 +22,26 @@ type ClosestMatch struct {
 type IDInfo struct {
 	Key           string
 	NumSubstrings int
+	Data          interface{}
 }
 
 // New returns a new structure for performing closest matches
-func New(possible []string, subsetSize []int) *ClosestMatch {
+func New(possible map[string]interface{}, subsetSize []int) *ClosestMatch {
 	cm := new(ClosestMatch)
 	cm.SubstringSizes = subsetSize
 	cm.SubstringToID = make(map[string]map[uint32]struct{})
 	cm.ID = make(map[uint32]IDInfo)
-	for i, s := range possible {
-		substrings := cm.splitWord(strings.ToLower(s))
-		cm.ID[uint32(i)] = IDInfo{Key: s, NumSubstrings: len(substrings)}
+	i := 0
+	for k, m := range possible {
+		substrings := cm.splitWord(strings.ToLower(k))
+		cm.ID[uint32(i)] = IDInfo{Key: k, NumSubstrings: len(substrings), Data: m}
 		for substring := range substrings {
 			if _, ok := cm.SubstringToID[substring]; !ok {
 				cm.SubstringToID[substring] = make(map[uint32]struct{})
 			}
 			cm.SubstringToID[substring][uint32(i)] = struct{}{}
 		}
+		i++
 	}
 
 	return cm
@@ -77,16 +80,23 @@ func (cm *ClosestMatch) Save(filename string) error {
 	return enc.Encode(cm)
 }
 
+type workerResult struct {
+	Value int
+	Data  interface{}
+}
+
 func (cm *ClosestMatch) worker(id int, jobs <-chan job, results chan<- result) {
 	for j := range jobs {
-		m := make(map[string]int)
+		m := make(map[string]workerResult)
 		if ids, ok := cm.SubstringToID[j.substring]; ok {
 			weight := 1000 / len(ids)
 			for id := range ids {
 				if _, ok2 := m[cm.ID[id].Key]; !ok2 {
-					m[cm.ID[id].Key] = 0
+					m[cm.ID[id].Key] = workerResult{Value: 0, Data: cm.ID[id].Data}
 				}
-				m[cm.ID[id].Key] += 1 + 1000/len(cm.ID[id].Key) + weight
+				item := m[cm.ID[id].Key]
+				item.Value += 1 + 1000/len(cm.ID[id].Key) + weight
+				m[cm.ID[id].Key] = item
 			}
 		}
 		results <- result{m: m}
@@ -98,10 +108,10 @@ type job struct {
 }
 
 type result struct {
-	m map[string]int
+	m map[string]workerResult
 }
 
-func (cm *ClosestMatch) match(searchWord string) map[string]int {
+func (cm *ClosestMatch) match(searchWord string) map[string]workerResult {
 	searchSubstrings := cm.splitWord(searchWord)
 	searchSubstringsLen := len(searchSubstrings)
 
@@ -118,12 +128,14 @@ func (cm *ClosestMatch) match(searchWord string) map[string]int {
 	}
 	close(jobs)
 
-	m := make(map[string]int)
+	m := make(map[string]workerResult)
 	for a := 1; a <= searchSubstringsLen; a++ {
 		r := <-results
 		for key := range r.m {
 			if _, ok := m[key]; ok {
-				m[key] += r.m[key]
+				x := m[key]
+				x.Value += r.m[key].Value
+				m[key] = x
 			} else {
 				m[key] = r.m[key]
 			}
@@ -142,22 +154,22 @@ func (cm *ClosestMatch) Closest(searchWord string) string {
 }
 
 // ClosestN searches for the `searchWord` and returns the n closests matches
-func (cm *ClosestMatch) ClosestN(searchWord string, max int) []string {
-	matches := make([]string, 0, max)
+func (cm *ClosestMatch) ClosestN(searchWord string, max int) []interface{} {
+	matches := make([]interface{}, 0, max)
 	for i, pair := range rankByWordCount(cm.match(searchWord)) {
 		if i >= max {
 			break
 		}
-		matches = append(matches, pair.Key)
+		matches = append(matches, pair.Data)
 	}
 	return matches
 }
 
-func rankByWordCount(wordFrequencies map[string]int) PairList {
+func rankByWordCount(wordFrequencies map[string]workerResult) PairList {
 	pl := make(PairList, len(wordFrequencies))
 	i := 0
 	for k, v := range wordFrequencies {
-		pl[i] = Pair{k, v}
+		pl[i] = Pair{k, v.Value, v.Data}
 		i++
 	}
 	sort.Sort(sort.Reverse(pl))
@@ -167,6 +179,7 @@ func rankByWordCount(wordFrequencies map[string]int) PairList {
 type Pair struct {
 	Key   string
 	Value int
+	Data  interface{}
 }
 
 type PairList []Pair
