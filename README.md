@@ -1,4 +1,6 @@
 
+#THIS IS A MODIFIED VERSION OF CLOSESTMATCH!  DOCUMENTATION WILL BE INACCURATE UNTIL I UPDATE.  This fork allows an interface to be attached to each searchable item so we can return anything we want.
+
 # closestmatch :page_with_curl:
 
 <a href="#"><img src="https://img.shields.io/badge/version-2.1.0-brightgreen.svg?style=flat-square" alt="Version"></a>
