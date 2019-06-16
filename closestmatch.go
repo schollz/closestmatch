@@ -3,6 +3,7 @@ package closestmatch
 import (
 	"compress/gzip"
 	"encoding/json"
+	"math"
 	"math/rand"
 	"os"
 	"sort"
@@ -17,6 +18,7 @@ type ClosestMatch struct {
 	SubstringSizes []int
 	SubstringToID  map[string]map[uint32]struct{}
 	ID             map[uint32]IDInfo
+	IDx            uint32
 	mux            sync.Mutex
 }
 
@@ -28,19 +30,25 @@ type IDInfo struct {
 
 // New returns a new structure for performing closest matches
 func New(possible []string, subsetSize []int) *ClosestMatch {
+	if len(possible)-1 > math.MaxUint32 {
+		panic("List is too long. ClosestMatch::IDx will overflow.")
+	}
+
 	cm := new(ClosestMatch)
 	cm.SubstringSizes = subsetSize
 	cm.SubstringToID = make(map[string]map[uint32]struct{})
 	cm.ID = make(map[uint32]IDInfo)
-	for i, s := range possible {
+	cm.IDx = 0
+	for _, s := range possible {
 		substrings := cm.splitWord(strings.ToLower(s))
-		cm.ID[uint32(i)] = IDInfo{Key: s, NumSubstrings: len(substrings)}
+		cm.ID[cm.IDx] = IDInfo{Key: s, NumSubstrings: len(substrings)}
 		for substring := range substrings {
 			if _, ok := cm.SubstringToID[substring]; !ok {
 				cm.SubstringToID[substring] = make(map[uint32]struct{})
 			}
-			cm.SubstringToID[substring][uint32(i)] = struct{}{}
+			cm.SubstringToID[substring][cm.IDx] = struct{}{}
 		}
+		cm.IDx++
 	}
 
 	return cm
@@ -67,16 +75,21 @@ func Load(filename string) (*ClosestMatch, error) {
 
 // Add more words to ClosestMatch structure
 func (cm *ClosestMatch) Add(possible []string) {
+	if len(possible)-1 > math.MaxUint32 || uint32(len(possible)-1) > math.MaxUint32-cm.IDx {
+		panic("List is too long. ClosestMatch::IDx will overflow.")
+	}
+
 	cm.mux.Lock()
-	for i, s := range possible {
+	for _, s := range possible {
 		substrings := cm.splitWord(strings.ToLower(s))
-		cm.ID[uint32(i)] = IDInfo{Key: s, NumSubstrings: len(substrings)}
+		cm.ID[cm.IDx] = IDInfo{Key: s, NumSubstrings: len(substrings)}
 		for substring := range substrings {
 			if _, ok := cm.SubstringToID[substring]; !ok {
 				cm.SubstringToID[substring] = make(map[uint32]struct{})
 			}
-			cm.SubstringToID[substring][uint32(i)] = struct{}{}
+			cm.SubstringToID[substring][cm.IDx] = struct{}{}
 		}
+		cm.IDx++
 	}
 	cm.mux.Unlock()
 }
