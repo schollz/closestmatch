@@ -197,3 +197,26 @@ func TestSaveLoad(t *testing.T) {
 		t.Errorf("Differing answers: '%s' '%s'", answer1, answer2)
 	}
 }
+
+func TestMultipleAddInvocations(t *testing.T) {
+	cm := New([]string{}, []int{2})
+	for _, x := range []string{"uppermost", "up", "uppity"} {
+		cm.Add([]string{x})
+	}
+	if cm.Closest("uppermost") != "uppermost" {
+		t.Errorf("Should have been an exact match.")
+	}
+}
+
+func TestAddAfterLoad(t *testing.T) {
+	cm := New([]string{"Darth", "Vader", "loves", "Doritos"}, []int{2})
+	cm.Save("test/vader.cm.gz")
+	cm, err := Load("test/vader.cm.gz")
+	if err != nil {
+		t.Errorf("Load should succeed")
+	}
+	cm.Add([]string{"Elephant"})
+	if cm.Closest("Darth") != "Darth" {
+		t.Errorf("Should have been an exact match.")
+	}
+}
