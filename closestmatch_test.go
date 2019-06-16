@@ -197,3 +197,13 @@ func TestSaveLoad(t *testing.T) {
 		t.Errorf("Differing answers: '%s' '%s'", answer1, answer2)
 	}
 }
+
+func TestMultipleAddInvocations(t *testing.T) {
+	cm := New([]string{}, []int{2})
+	for _, x := range []string{"uppermost", "up", "uppity"} {
+		cm.Add([]string{x})
+	}
+	if cm.Closest("uppermost") != "uppermost" {
+		t.Errorf("Should have been an exact match.")
+	}
+}

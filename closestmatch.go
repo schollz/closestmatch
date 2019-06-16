@@ -17,6 +17,7 @@ type ClosestMatch struct {
 	SubstringSizes []int
 	SubstringToID  map[string]map[uint32]struct{}
 	ID             map[uint32]IDInfo
+	id             uint32
 	mux            sync.Mutex
 }
 
@@ -32,15 +33,16 @@ func New(possible []string, subsetSize []int) *ClosestMatch {
 	cm.SubstringSizes = subsetSize
 	cm.SubstringToID = make(map[string]map[uint32]struct{})
 	cm.ID = make(map[uint32]IDInfo)
-	for i, s := range possible {
+	for _, s := range possible {
 		substrings := cm.splitWord(strings.ToLower(s))
-		cm.ID[uint32(i)] = IDInfo{Key: s, NumSubstrings: len(substrings)}
+		cm.ID[cm.id] = IDInfo{Key: s, NumSubstrings: len(substrings)}
 		for substring := range substrings {
 			if _, ok := cm.SubstringToID[substring]; !ok {
 				cm.SubstringToID[substring] = make(map[uint32]struct{})
 			}
-			cm.SubstringToID[substring][uint32(i)] = struct{}{}
+			cm.SubstringToID[substring][cm.id] = struct{}{}
 		}
+		cm.id++
 	}
 
 	return cm
@@ -68,15 +70,16 @@ func Load(filename string) (*ClosestMatch, error) {
 // Add more words to ClosestMatch structure
 func (cm *ClosestMatch) Add(possible []string) {
 	cm.mux.Lock()
-	for i, s := range possible {
+	for _, s := range possible {
 		substrings := cm.splitWord(strings.ToLower(s))
-		cm.ID[uint32(i)] = IDInfo{Key: s, NumSubstrings: len(substrings)}
+		cm.ID[cm.id] = IDInfo{Key: s, NumSubstrings: len(substrings)}
 		for substring := range substrings {
 			if _, ok := cm.SubstringToID[substring]; !ok {
 				cm.SubstringToID[substring] = make(map[uint32]struct{})
 			}
-			cm.SubstringToID[substring][uint32(i)] = struct{}{}
+			cm.SubstringToID[substring][cm.id] = struct{}{}
 		}
+		cm.id++
 	}
 	cm.mux.Unlock()
 }
